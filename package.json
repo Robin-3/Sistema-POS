@@ -1,0 +1,30 @@
+{
+  "name": "sistema-pos",
+  "version": "0.1",
+  "main": "server/server.mjs",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "back:dev": "npm run dev --workspace=backend",
+    "front:dev": "npm run dev --workspace=frontend",
+    "front:start": "npm run start --worspace=frontend",
+    "front:build": "npm run build --worspace=frontend",
+    "front:preview": "npm run preview --worspace=frontend",
+    "front:astro": "npm run astro --worspace=frontend",
+    "lint": "npx semistandard",
+    "lint:fix": "npx semistandard --fix"
+  },
+  "keywords": [],
+  "author": "",
+  "description": "",
+  "devDependencies": {
+    "semistandard": "17.0.0"
+  },
+  "eslintConfig": {
+    "extends": "semistandard"
+  }
+}

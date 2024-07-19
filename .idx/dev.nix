@@ -8,7 +8,7 @@
     # pkgs.go
     # pkgs.python311
     # pkgs.python311Packages.pip
-    # pkgs.nodejs_20
+    pkgs.nodejs_20
     # pkgs.nodePackages.nodemon
   ];
   # Sets environment variables in the workspace
@@ -17,6 +17,11 @@
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
       # "vscodevim.vim"
+      "astro-build.astro-vscode"
+      "bradlc.vscode-tailwindcss"
+      "dbaeumer.vscode-eslint"
+      "usernamehw.errorlens"
+      "humao.rest-client"
     ];
     # Enable previews
     previews = {
@@ -40,6 +45,7 @@
       onCreate = {
         # Example: install JS dependencies from NPM
         # npm-install = "npm install";
+        npm-install = "npm ci --no-audit --prefer-offline --no-progress --timing";
         # Open editors for the following files by default, if they exist:
         default.openFiles = [ ".idx/dev.nix" "README.md" ];
       };
