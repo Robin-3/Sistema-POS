@@ -1,0 +1,23 @@
+@hostname = localhost
+@port = 8080
+@host = {{hostname}}:{{port}}
+
+###
+POST http://{{host}}/api/register HTTP/1.1
+content-type: application/json
+
+{
+  "identificationNumber": "1234",
+  "names": "John Doe",
+  "password": "1234"
+}
+
+###
+
+POST http://{{host}}/api/login HTTP/1.1
+content-type: application/json
+
+{
+  "identificationNumber": "1234",
+  "password": "1234"
+}
