@@ -9,6 +9,7 @@
     "frontend"
   ],
   "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=backend\" \"npm run dev --workspace=frontend\"",
     "back:dev": "npm run dev --workspace=backend",
     "front:dev": "npm run dev --workspace=frontend",
     "front:start": "npm run start --worspace=frontend",
@@ -22,6 +23,7 @@
   "author": "",
   "description": "",
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "semistandard": "17.0.0"
   },
   "eslintConfig": {

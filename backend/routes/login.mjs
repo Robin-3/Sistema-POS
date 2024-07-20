@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/login', async (req, res) => {
   const {
-    identificationNumber = '',
+    'identification-number': identificationNumber = '',
     password = ''
   } = req.body;
 

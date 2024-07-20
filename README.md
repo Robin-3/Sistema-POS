@@ -1,5 +1,22 @@
 # Sistema POS
 
+## Frontend
+
+```textplain
+/
+├── login/
+└── register/
+```
+
+## Backend
+
+```textplain
+api/
+├── login/
+├── logout/
+└── register/
+```
+
 ## Database
 
 ```mermaid

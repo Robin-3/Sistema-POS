@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
   const {
-    identificationNumber = '',
+    'identification-number': identificationNumber = '',
     names = '',
     password = ''
   } = req.body;

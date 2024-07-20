@@ -1,0 +1,10 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import RegisterForm from "@/components/RegisterForm";
+
+const URL = import.meta.env.URL_API_REGISTER;
+---
+
+<Layout title="Registrar vendedor">
+  <RegisterForm client:load url={URL} />
+</Layout>
