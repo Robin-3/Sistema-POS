@@ -1,7 +1,7 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { ENV, TOKEN, TOKEN_KEY } from '../config.mjs';
-import { UserRepository } from '../repository/database.mjs';
+import { UserRepository } from '../repository/UserRepository.mjs';
 
 const router = express.Router();
 

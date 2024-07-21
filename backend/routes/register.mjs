@@ -1,6 +1,6 @@
 import express from 'express';
 import { ENV } from '../config.mjs';
-import { UserRepository } from '../repository/database.mjs';
+import { UserRepository } from '../repository/UserRepository.mjs';
 
 const router = express.Router();
 
