@@ -400,4 +400,73 @@ export class UserRepository {
       });
     return user.length === 0 ? null : user[0];
   }
+
+  /**
+   * @param {{
+   *   id: string;
+   * }} options
+   */
+  static removeClient ({ id }) {
+    const client = Clients.findOne({ _id: id });
+    client.remove();
+  }
+
+  /**
+   * @param {{
+   *   id: string;
+   * }} options
+   */
+  static removeSeller ({ id }) {
+    let hierarchyIds = [];
+    SellerHierarchy.find({ seller_id: id })
+      .forEach(seller => {
+        hierarchyIds.push(seller._id);
+      });
+    SellerHierarchy.find({ top_seller_id: id })
+      .forEach(seller => {
+        hierarchyIds.push(seller._id);
+      });
+    hierarchyIds = [...new Set(hierarchyIds)];
+    for (const id of hierarchyIds) {
+      const seller = SellerHierarchy.findOne({ _id: id });
+      seller.remove();
+    }
+
+    const seller = Sellers.findOne({ _id: id });
+    seller.remove();
+  }
+
+  /**
+   * @param {{
+   *   id: string;
+   * }} options
+   */
+  static removeSupplier ({ id }) {
+    const supplier = Suppliers.findOne({ _id: id });
+    supplier.remove();
+  }
+
+  /**
+   * @param {{
+   *   id: string;
+   * }} options
+   */
+  static removeUser ({ id }) { // todo: aceptar un parametro para solo eliminar un tipo de usuario
+    const client = Clients.findOne({ _id: id });
+    if (client) UserRepository.removeClient({ id });
+    const seller = Sellers.findOne({ _id: id });
+    if (seller) UserRepository.removeSeller({ id });
+    const supplier = Suppliers.findOne({ _id: id });
+    if (supplier) UserRepository.removeSupplier({ id });
+
+    const contactIds = ContactsUsers.find({ user_id: id })
+      .map(contact => contact._id);
+    for (const id of contactIds) {
+      const contact = ContactsUsers.findOne({ _id: id });
+      contact.remove();
+    }
+
+    const user = Users.findOne({ _id: id });
+    user.remove();
+  }
 }

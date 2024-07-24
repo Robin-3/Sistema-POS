@@ -9,10 +9,10 @@ const router = express.Router();
 |-----------------|--------|--------|----------------------------------------------|
 | `/users/:type?` | GET    | SELECT | Lista todos los usuarios                     |
 | `/users/:id`    | GET    | SELECT | Obtiene la información general de un usuario |
+| `/users/:id`    | DELETE | DELETE | Elimina a un usuario                         |
 
 | `/users/[type]` | POST   | INSERT | Crea un nuevo usuario                        |
 | `/users/[_id]`  | PATCH  | UPDATE | Actualiza la información de un usuario       |
-| `/users/[_id]`  | DELETE | DELETE | Elimina a un usuario                         |
 *type*: clientes, sellers, suppliers
 */
 
@@ -45,6 +45,18 @@ router.get('/users/:type?', (req, res, next) => {
   } catch (error) {
     if (ENV === 'development') console.error(error);
     res.status(500).send('Error getting users');
+  }
+});
+
+router.delete('/users/:id', (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    UserRepository.removeUser({ id });
+    res.status(204).send();
+  } catch (error) {
+    if (ENV === 'development') console.error(error);
+    res.status(500).send('Error removing user');
   }
 });
 
