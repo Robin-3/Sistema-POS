@@ -48,11 +48,34 @@ router.get('/users/:type?', (req, res, next) => {
   }
 });
 
-router.delete('/users/:id', (req, res, next) => {
+router.delete('/users/:id', (req, res) => {
   const id = req.params.id;
 
   try {
     UserRepository.removeUser({ id });
+    res.status(204).send();
+  } catch (error) {
+    if (ENV === 'development') console.error(error);
+    res.status(500).send('Error removing user');
+  }
+});
+
+router.delete('/users/:type/:id', (req, res) => {
+  const { type, id } = req.params;
+
+  try {
+    if (type === 'clients') {
+      UserRepository.removeClient({ id });
+    } else if (type === 'sellers') {
+      UserRepository.removeSeller({ id });
+    } else if (type === 'suppliers') {
+      UserRepository.removeSupplier({ id });
+    } else {
+      res.status(400).send('Invalid user type');
+    }
+    const userTypes = UserRepository.getUserTypes({ id });
+    if (userTypes.length === 0) UserRepository.removeUser({ id });
+
     res.status(204).send();
   } catch (error) {
     if (ENV === 'development') console.error(error);

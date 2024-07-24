@@ -211,6 +211,24 @@ export class UserRepository {
    * @param {{
    *   id: string;
    * }} options
+   * @returns {('Client' | 'Seller' | 'Supplier')[]} user types
+   */
+  static getUserTypes ({ id }) {
+    const userTypes = [];
+    const client = Clients.findOne({ _id: id });
+    if (client) userTypes.push('Client');
+    const seller = Sellers.findOne({ _id: id });
+    if (seller) userTypes.push('Seller');
+    const supplier = Suppliers.findOne({ _id: id });
+    if (supplier) userTypes.push('Supplier');
+
+    return userTypes;
+  }
+
+  /**
+   * @param {{
+   *   id: string;
+   * }} options
    * @returns {{
    *   id: string;
    *   identification: {
@@ -451,7 +469,7 @@ export class UserRepository {
    *   id: string;
    * }} options
    */
-  static removeUser ({ id }) { // todo: aceptar un parametro para solo eliminar un tipo de usuario
+  static removeUser ({ id }) {
     const client = Clients.findOne({ _id: id });
     if (client) UserRepository.removeClient({ id });
     const seller = Sellers.findOne({ _id: id });
