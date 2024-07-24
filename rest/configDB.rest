@@ -1,0 +1,6 @@
+@hostname = localhost
+@port = 8080
+@host = {{hostname}}:{{port}}
+
+###
+POST http://{{host}}/api/db/initial-values HTTP/1.1

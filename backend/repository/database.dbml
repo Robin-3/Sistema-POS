@@ -59,11 +59,11 @@ Table suppliers {
   business_name text [not null]
 }
 
-/// -- Tablas M*M -- ///
+/// -- TABLAS M*M -- ///
 Table contacts_users {
   _id integer [pk, increment]
   contact_id integer [not null, ref: > enum_contact._id]
-  user_id integer [not null, ref: > users._id]
+  user_id text [not null, ref: > users._id]
   contact string [not null]
   indexes {
     (contact_id, user_id, contact) [unique]
@@ -79,8 +79,8 @@ Table permissions_roles {
 }
 Table seller_hierarchy {
   _id integer [pk, increment]
-  seller_id integer [not null, ref: > sellers._id]
-  top_seller_id integer [not null, ref: > sellers._id]
+  seller_id text [not null, ref: > sellers._id]
+  top_seller_id text [not null, ref: > sellers._id]
   indexes {
     (seller_id, top_seller_id) [unique]
   }

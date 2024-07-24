@@ -1,0 +1,21 @@
+@hostname = localhost
+@port = 8080
+@host = {{hostname}}:{{port}}
+
+###
+GET http://{{host}}/api/users HTTP/1.1
+
+###
+GET http://{{host}}/api/users/clients HTTP/1.1
+
+###
+GET http://{{host}}/api/users/sellers HTTP/1.1
+
+###
+GET http://{{host}}/api/users/suppliers HTTP/1.1
+
+###
+GET http://{{host}}/api/users/invalid-type HTTP/1.1
+
+###
+GET http://{{host}}/api/users/1379bc82-0b08-4765-8488-bf80f1a652dc HTTP/1.1
