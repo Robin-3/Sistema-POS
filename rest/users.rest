@@ -21,6 +21,47 @@ GET http://{{host}}/api/users/invalid-type HTTP/1.1
 GET http://{{host}}/api/users/1379bc82-0b08-4765-8488-bf80f1a652dc HTTP/1.1
 
 ###
+POST http://{{host}}/api/users/clients HTTP/1.1
+content-type: application/json
+
+{
+  "id" : "0b08da6c-6cc3-4eac-861d-b3aefc547f45",
+  "identification_id" : 2,
+  "identification_number" : "b853b0fdb778cad8",
+  "image" : "https://randomuser.me/api/portraits/men/61.jpg",
+  "names" : "Akshay",
+  "surnames" : "Andrade",
+  "gender_id" : 1
+}
+
+###
+POST http://{{host}}/api/users/sellers HTTP/1.1
+content-type: application/json
+
+{
+  "id" : "1379bc82-0b08-4765-8488-bf80f1a652dc",
+  "identification_id" : 2,
+  "identification_number" : "8d409ae4d8400d8e",
+  "image" : "https://randomuser.me/api/portraits/women/66.jpg",
+  "names" : "Deniz",
+  "surnames" : "Doğan",
+  "gender_id" : 2,
+  "role_id" : 2,
+  "password" : "denizDogan@whitebutterfly739.com"
+}
+
+###
+POST http://{{host}}/api/users/suppliers HTTP/1.1
+content-type: application/json
+
+{
+  "id" : "0b08da6c-6cc3-4eac-861d-b3aefc547f45",
+  "identification_id" : 2,
+  "identification_number" : "b853b0fdb778cad8",
+  "business_name": "randomuser.me"
+}
+
+###
 DELETE http://{{host}}/api/users/1379bc82-0b08-4765-8488-bf80f1a652dc HTTP/1.1
 
 ###

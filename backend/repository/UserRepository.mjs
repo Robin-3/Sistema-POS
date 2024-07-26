@@ -7,67 +7,6 @@ import { Users, Sellers, EnumIdentification, EnumRole, Clients, Suppliers, EnumG
 export class UserRepository {
   /**
    * @param {{
-   *   identificationNumber: string
-   * }} options
-   * @returns {string} id
-   */
-  static createUser ({ identificationNumber }) {
-    Validations.identificationNumber(identificationNumber);
-
-    // TODO: Validar que el número y el tipo de documento ya existan
-    const user = Users.findOne({ identification_number: identificationNumber });
-    if (user) throw new Error('The user already exists');
-
-    const id = crypto.randomUUID();
-
-    Users.create({
-      _id: id,
-      identification_id: 2,
-      identification_number: identificationNumber,
-      image: '', // TODO: añadir la url de imagen
-      created_at: Date.now(),
-      updated_at: Date.now()
-    }).save();
-
-    return id;
-  }
-
-  /**
-   * @param {{
-   *   identificationNumber: string;
-   *   names: string;
-   *   password: string;
-   * }} options
-   * @returns {string} id
-   */
-  static async createSeller ({ identificationNumber, names, password }) {
-    // TODO: Validar que el número y el tipo de documento ya existan
-    const user = Users.findOne({ identification_number: identificationNumber });
-    if (user) {
-      const seller = Sellers.findOne({ _id: user._id });
-      if (seller) throw new Error('The seller already exists');
-    }
-
-    Validations.names(names);
-    Validations.password(password);
-
-    const userId = user ? user._id : UserRepository.createUser({ identificationNumber });
-    const salt = Number(SALT_ROUNDS);
-    const encryptedPassword = await bcrypt.hash(password, salt);
-
-    Sellers.create({
-      _id: userId,
-      names,
-      gender_id: 3, // TODO: ajustar el tipo de genero
-      role_id: 2, // TODO: ajustar el tipo de rol
-      password: encryptedPassword
-    }).save();
-
-    return userId;
-  }
-
-  /**
-   * @param {{
    *   identificationNumber: string;
    *   password: string;
    * }} options
@@ -213,7 +152,7 @@ export class UserRepository {
    * }} options
    * @returns {('Client' | 'Seller' | 'Supplier')[]} user types
    */
-  static getUserTypes ({ id }) {
+  static _getUserTypes ({ id }) {
     const userTypes = [];
     const client = Clients.findOne({ _id: id });
     if (client) userTypes.push('Client');
@@ -259,6 +198,37 @@ export class UserRepository {
     s.role = seller._tb_role.role;
 
     return s;
+  }
+
+  /**
+   * @param {{
+   *   id?: string;
+   *   identificationId: number;
+   *   identificationNumber: string;
+   *   image?: string;
+   *   createdAt?: number;
+   *   updatedAt?: number;
+   * }} options
+   * @returns {string} id
+   */
+  static _createUser ({ id, identificationId, identificationNumber, image, createdAt, updatedAt }) {
+    if (!id) id = crypto.randomUUID();
+    if (!createdAt) createdAt = Date.now();
+    if (!updatedAt) updatedAt = Date.now();
+
+    Validations.user({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+
+    const u = {};
+    u._id = id;
+    u.identification_id = identificationId;
+    u.identification_number = identificationNumber;
+    if (image) u.image = image;
+    u.created_at = createdAt;
+    u.updated_at = updatedAt;
+
+    Users.create(u).save();
+
+    return id;
   }
 
   /**
@@ -417,6 +387,124 @@ export class UserRepository {
         return u;
       });
     return user.length === 0 ? null : user[0];
+  }
+
+  /**
+   * @param {{
+   *   id?: string;
+   *   identificationId?: number;
+   *   identificationNumber?: string;
+   *   image?: string;
+   *   createdAt?: number;
+   *   updatedAt?: number;
+   *   names: string;
+   *   surnames?: string;
+   *   genderId: number;
+   * }} options
+   * @returns {string} id
+   */
+  static createClient ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId }) {
+    // Puede generar un id, que exista dentro de usuarios pero con un tipo de usuario diferente
+    const idExists = Boolean(id);
+    if (!idExists) id = crypto.randomUUID();
+
+    Validations.client({ id, names, surnames, genderId });
+
+    const user = idExists ? Users.findOne({ _id: id }) : undefined;
+    const userId = user
+      ? user._id
+      : UserRepository._createUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+
+    const c = {};
+    c._id = userId;
+    c.names = names;
+    if (surnames) c.surnames = surnames;
+    c.gender_id = genderId;
+
+    Clients.create(c).save();
+
+    return userId;
+  }
+
+  /**
+   * @param {{
+   *   id?: string;
+   *   identificationId?: number;
+   *   identificationNumber?: string;
+   *   image?: string;
+   *   createdAt?: number;
+   *   updatedAt?: number;
+   *   names: string;
+   *   surnames?: string;
+   *   genderId: number;
+   *   roleId: number;
+   *   password: string;
+   *   taxRegimeCode?: string;
+   *   economicActivityCode?: string;
+   * }} options
+   * @returns {string} id
+   */
+  static async createSeller ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode }) {
+    // Puede generar un id, que exista dentro de usuarios pero con un tipo de usuario diferente
+    const idExists = Boolean(id);
+    if (!idExists) id = crypto.randomUUID();
+
+    Validations.seller({ id, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode });
+
+    const user = idExists ? Users.findOne({ _id: id }) : undefined;
+    const userId = user
+      ? user._id
+      : UserRepository._createUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+
+    const salt = Number(SALT_ROUNDS);
+    const encryptedPassword = await bcrypt.hash(password, salt);
+
+    const s = {};
+    s._id = userId;
+    s.names = names;
+    if (surnames) s.surnames = surnames;
+    s.gender_id = genderId;
+    s.role_id = roleId;
+    s.password = encryptedPassword;
+    if (taxRegimeCode) s.tax_regime_code = taxRegimeCode;
+    if (economicActivityCode) s.economic_activity_code = economicActivityCode;
+
+    Sellers.create(s).save();
+
+    return userId;
+  }
+
+  /**
+   * @param {{
+   *   id?: string;
+   *   identificationId?: number;
+   *   identificationNumber?: string;
+   *   image?: string;
+   *   createdAt?: number;
+   *   updatedAt?: number;
+   *   businessName: string;
+   * }} options
+   * @returns {string} id
+   */
+  static createSupplier ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, businessName }) {
+    // Puede generar un id, que exista dentro de usuarios pero con un tipo de usuario diferente
+    const idExists = Boolean(id);
+    if (!idExists) id = crypto.randomUUID();
+
+    Validations.supplier({ id, businessName });
+
+    const user = idExists ? Users.findOne({ _id: id }) : undefined;
+    const userId = user
+      ? user._id
+      : UserRepository._createUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+
+    const s = {};
+    s._id = userId;
+    s.business_name = businessName;
+
+    Suppliers.create(s).save();
+
+    return userId;
   }
 
   /**
