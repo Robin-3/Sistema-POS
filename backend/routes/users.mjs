@@ -4,20 +4,6 @@ import { ENV } from '../config.mjs';
 
 const router = express.Router();
 
-/*
-| URL                | API    | DB     | Tarea                                        |
-|--------------------|--------|--------|----------------------------------------------|
-| `/users/`          | GET    | SELECT | Lista todos los usuarios                     |
-| `/users/:id`       | GET    | SELECT | Obtiene la información general de un usuario |
-| `/users/:type`     | GET    | SELECT | Lista todos los usuarios de un tipo          |
-| `/users/:type`     | POST   | INSERT | Crea un nuevo usuario                        |
-| `/users/:id`       | DELETE | DELETE | Elimina a un usuario y todos sus tipos       |
-| `/users/:type/:id` | DELETE | DELETE | Elimina a un tipo de usuario                 |
-
-| `/users/[_id]`  | PATCH  | UPDATE | Actualiza la información de un usuario       |
-*type*: clients, sellers, suppliers
-*/
-
 router.get('/users/:id', (req, res, next) => {
   const id = req.params.id;
 
@@ -81,10 +67,38 @@ router.post('/users/:type', async (req, res) => {
       res.status(400).send('Invalid user type');
     }
 
-    res.send({ id: idUser });
+    res.send(UserRepository.getUser({ id: idUser }));
   } catch (error) {
     if (ENV === 'development') console.error(error);
     res.status(500).send('Error creating user');
+  }
+});
+
+router.patch('/users/:id', async (req, res) => {
+  const { id } = req.params;
+  const {
+    identification_id: identificationId,
+    identification_number: identificationNumber,
+    image,
+    created_at: createdAt,
+    updated_at: updatedAt,
+    names,
+    surnames,
+    gender_id: genderId,
+    role_id: roleId,
+    password,
+    tax_regime_code: taxRegimeCode,
+    economic_activity_code: economicActivityCode,
+    business_name: businessName
+  } = req.body;
+
+  try {
+    UserRepository.updateUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode, businessName });
+
+    res.send(UserRepository.getUser({ id }));
+  } catch (error) {
+    if (ENV === 'development') console.error(error);
+    res.status(500).send('Error updating user');
   }
 });
 
@@ -113,7 +127,7 @@ router.delete('/users/:type/:id', (req, res) => {
     } else {
       res.status(400).send('Invalid user type');
     }
-    const userTypes = UserRepository._getUserTypes({ id });
+    const userTypes = UserRepository.getUserTypes({ id });
     if (userTypes.length === 0) UserRepository.removeUser({ id });
 
     res.status(204).send();

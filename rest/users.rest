@@ -62,6 +62,20 @@ content-type: application/json
 }
 
 ###
+PATCH http://{{host}}/api/users/0b08da6c-6cc3-4eac-861d-b3aefc547f45 HTTP/1.1
+content-type: application/json
+
+{
+  "identification_id" : 1,
+  "identification_number" : "4a72a2bae481c239",
+  "image" : "https://randomuser.me/api/portraits/women/17.jpg",
+  "names" : "Deniz",
+  "surnames" : "Doğan",
+  "gender_id" : 2,
+  "business_name": "randomuser.me"
+}
+
+###
 DELETE http://{{host}}/api/users/1379bc82-0b08-4765-8488-bf80f1a652dc HTTP/1.1
 
 ###

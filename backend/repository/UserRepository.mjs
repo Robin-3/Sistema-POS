@@ -152,7 +152,7 @@ export class UserRepository {
    * }} options
    * @returns {('Client' | 'Seller' | 'Supplier')[]} user types
    */
-  static _getUserTypes ({ id }) {
+  static getUserTypes ({ id }) {
     const userTypes = [];
     const client = Clients.findOne({ _id: id });
     if (client) userTypes.push('Client');
@@ -505,6 +505,64 @@ export class UserRepository {
     Suppliers.create(s).save();
 
     return userId;
+  }
+
+  /**
+   * @param {{
+   *   id: string;
+   *   identificationId?: number;
+   *   identificationNumber?: string;
+   *   image?: string;
+   *   createdAt?: number;
+   *   updatedAt?: number;
+   *   names?: string;
+   *   surnames?: string;
+   *   genderId?: number;
+   *   roleId?: number;
+   *   password?: string;
+   *   taxRegimeCode?: string;
+   *   economicActivityCode?: string;
+   *   businessName?: string;
+   * }} options
+   * @returns {string} id
+   */
+  static updateUser ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode, businessName }) {
+    Validations.update({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode, businessName });
+
+    const user = Users.findOne({ _id: id });
+    if (identificationId) user.identification_id = identificationId;
+    if (identificationNumber) user.identification_number = identificationNumber;
+    if (image) user.image = image;
+    if (createdAt) user.created_at = createdAt;
+    if (updatedAt) user.updated_at = updatedAt;
+    user.save();
+
+    const userTypes = this.getUserTypes({ id });
+    if (userTypes.includes('Client')) {
+      const client = Clients.findOne({ _id: id });
+      if (names) client.names = names;
+      if (surnames) client.surnames = surnames;
+      if (genderId) client.gender_id = genderId;
+      client.save();
+    }
+    if (userTypes.includes('Seller')) {
+      const seller = Sellers.findOne({ _id: id });
+      if (names) seller.names = names;
+      if (surnames) seller.surnames = surnames;
+      if (genderId) seller.gender_id = genderId;
+      if (roleId) seller.role_id = roleId;
+      if (password) seller.password = password;
+      if (taxRegimeCode) seller.tax_regime_code = taxRegimeCode;
+      if (economicActivityCode) seller.economic_activity_code = economicActivityCode;
+      seller.save();
+    }
+    if (userTypes.includes('Supplier')) {
+      const supplier = Suppliers.findOne({ _id: id });
+      if (businessName) supplier.business_name = businessName;
+      supplier.save();
+    }
+
+    return id;
   }
 
   /**

@@ -202,4 +202,52 @@ export class Validations {
 
     Validations.businessName(businessName);
   }
+
+  /**
+   * @param {{
+   *   id: string;
+   *   identificationId?: number;
+   *   identificationNumber?: string;
+   *   image?: string;
+   *   createdAt?: number;
+   *   updatedAt?: number;
+   *   names?: string;
+   *   surnames?: string;
+   *   genderId?: number;
+   *   roleId?: number;
+   *   password?: string;
+   *   taxRegimeCode?: string;
+   *   economicActivityCode?: string;
+   *   businessName?: string;
+   * }} options
+   * @returns {string} id
+   */
+  static update ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode, businessName }) {
+    const user = Users.findOne({ _id: id });
+
+    if (identificationId) Validations.identificationId(identificationId);
+    else identificationId = user.identification_id;
+    if (identificationNumber) Validations.identificationNumber(identificationNumber);
+    else identificationNumber = user.identification_number;
+    const identification = Users.findOne({ identification_id: identificationId, identification_number: identificationNumber });
+    if (identification && identification._id !== id) throw new Error('The identification already exists');
+
+    Validations.image(image);
+
+    if (createdAt) Validations.timestamp(createdAt);
+    if (updatedAt) Validations.timestamp(updatedAt);
+
+    if (names) Validations.names(names);
+    Validations.surnames(surnames);
+
+    if (genderId) Validations.genderId(genderId);
+    if (roleId) Validations.roleId();
+
+    if (password) Validations.password(password);
+
+    Validations.taxRegimeCode(taxRegimeCode);
+    Validations.economicActivityCode(economicActivityCode);
+
+    if (businessName) Validations.businessName(businessName);
+  }
 }
