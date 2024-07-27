@@ -5,7 +5,6 @@ import cors from 'cors';
 import multer from 'multer';
 import loginRouter from './routes/login.mjs';
 import logoutRouter from './routes/logout.mjs';
-import registerRouter from './routes/register.mjs';
 import usersRouter from './routes/users.mjs';
 import configDBRouter from './routes/configDB.mjs';
 import { handler as astroHandler } from '../frontend/dist/server/entry.mjs';
@@ -29,7 +28,6 @@ app.disable('x-powered-by');
 
 app.use('/api', loginRouter);
 app.use('/api', logoutRouter);
-app.use('/api', registerRouter);
 app.use('/api', usersRouter);
 app.use('/api/db', configDBRouter);
 

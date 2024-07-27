@@ -4,8 +4,7 @@
 
 ```textplain
 /
-├── login/
-└── register/
+└── login/
 ```
 
 ## Backend
@@ -14,7 +13,6 @@
 api/
 ├── POST login/    - Inicia sesión (Vendedor)
 ├── POST logout/   - Cierra sesión
-├── POST register/ - Deprecado
 └── GET  users/    - Lista todos los usuarios
     ├── GET    :id/      - Obtiene la información general del usuario
     ├── GET    :type/    - Lista todos los usuarios de un tipo
