@@ -18,6 +18,6 @@ POST http://{{host}}/api/login HTTP/1.1
 content-type: application/json
 
 {
-  "identification-number": "1234",
-  "password": "1234"
+  "identification-number": "8d409ae4d8400d8e",
+  "password": "denizDogan@whitebutterfly739.com"
 }

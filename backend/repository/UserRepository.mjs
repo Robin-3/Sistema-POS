@@ -14,6 +14,8 @@ export class UserRepository {
    *   id: string;
    *   names: string;
    *   surnames: string;
+   *   image?: string;
+   *   role: string;
    * }} seller
    */
   static async loginSeller ({ identificationNumber, password }) {
@@ -29,13 +31,16 @@ export class UserRepository {
     const isValid = await bcrypt.compare(password, seller.password);
     if (!isValid) throw new Error('Password is incorrect');
 
-    const { _id, names, surnames } = seller;
+    const role = EnumRole.findOne({ _id: seller.role_id });
 
-    return {
-      id: _id,
-      names,
-      surnames
-    };
+    const s = {};
+    s.id = seller._id;
+    s.names = seller.names;
+    s.surnames = seller.surnames;
+    if (user.image) s.image = user.image;
+    s.role = role.role;
+
+    return s;
   }
 
   /**
@@ -284,7 +289,7 @@ export class UserRepository {
         }
         if (user._tb_suppliers) {
           u.name = user._tb_suppliers.business_name;
-          u.userType.push('Suppliers');
+          u.userType.push('Supplier');
         }
 
         return u;

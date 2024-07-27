@@ -1,11 +1,7 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import LogoutForm from "@/components/LogoutForm";
-
-const { user } = Astro.locals;
-const URL = import.meta.env.URL_API_LOGOUT;
+import Layout from "@/layouts/MainLayout.astro";
 ---
 
 <Layout title="Panel de administración">
-	<LogoutForm client:load url={URL} user={user} />
+  <h1 class="text-center p-8 text-3xl font-semibold whitespace-nowrap dark:text-white">Panel de administración</h1>
 </Layout>

@@ -1,0 +1,57 @@
+---
+import Layout from "@/layouts/MainLayout.astro";
+import UserCard from "@/components/UserCard.astro";
+
+const URL = import.meta.env.URL_API_USERS;
+
+const { user } = Astro.locals;
+const { id } = user;
+
+const userTypeColor = (type: "Client" | "Seller" | "Supplier") => {
+  if (type === "Client") return "bg-blue-100 text-blue-800";
+  if (type === "Seller") return "bg-green-100 text-green-800";
+  if (type === "Supplier") return "bg-yellow-100 text-yellow-800";
+  return "bg-gray-100 text-gray-800";
+};
+
+const response = await fetch(URL);
+const data = (await response.json()) as {
+  id: string;
+  identification: {
+    code: string;
+    name: string;
+    number: string;
+  };
+  name: string;
+  image?: string;
+  userType: ("Client" | "Seller" | "Supplier")[];
+}[];
+const users = data
+  .filter(user => user.id !== id)
+  .map((user) => {
+    const { id, identification, name, image, userType } = user;
+    const types = userType.map((type) => {
+      return {
+        type,
+        color: userTypeColor(type),
+      };
+    });
+
+    return {
+      id,
+      identification,
+      name,
+      image:
+        image ??
+        `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`,
+        userType: types,
+    };
+  });
+---
+
+<Layout title="Usuarios">
+  <h1 class="text-center p-8 text-3xl font-semibold whitespace-nowrap dark:text-white">Usuarios</h1>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    {users.map((user) => <UserCard user={user} />)}
+  </div>
+</Layout>
