@@ -155,16 +155,16 @@ export class UserRepository {
    * @param {{
    *   id: string;
    * }} options
-   * @returns {('Client' | 'Seller' | 'Supplier')[]} user types
+   * @returns {('Cliente' | 'Proveedor' | 'Vendedor')[]} user types
    */
   static getUserTypes ({ id }) {
     const userTypes = [];
     const client = Clients.findOne({ _id: id });
-    if (client) userTypes.push('Client');
+    if (client) userTypes.push('Cliente');
     const seller = Sellers.findOne({ _id: id });
-    if (seller) userTypes.push('Seller');
+    if (seller) userTypes.push('Vendedor');
     const supplier = Suppliers.findOne({ _id: id });
-    if (supplier) userTypes.push('Supplier');
+    if (supplier) userTypes.push('Proveedor');
 
     return userTypes;
   }
@@ -249,7 +249,8 @@ export class UserRepository {
    *   };
    *   name: string;
    *   image?: string;
-   *   userType: ('Client' | 'Seller' | 'Supplier')[];
+   *   role?: string;
+   *   userType: ('Cliente' | 'Proveedor' | 'Vendedor')[];
    * }[]} allUsers
    */
   static getAllUsers ({ type }) {
@@ -279,17 +280,18 @@ export class UserRepository {
           const names = user._tb_clients.names;
           const surnames = user._tb_clients.surnames ?? '';
           u.name = (names + ' ' + surnames).trim();
-          u.userType.push('Client');
+          u.userType.push('Cliente');
         }
         if (user._tb_sellers) {
           const names = user._tb_sellers.names;
           const surnames = user._tb_sellers.surnames ?? '';
           u.name = (names + ' ' + surnames).trim();
-          u.userType.push('Seller');
+          u.role = user._tb_sellers._tb_role.role;
+          u.userType.push('Vendedor');
         }
         if (user._tb_suppliers) {
           u.name = user._tb_suppliers.business_name;
-          u.userType.push('Supplier');
+          u.userType.push('Proveedor');
         }
 
         return u;
@@ -336,7 +338,7 @@ export class UserRepository {
    *   };
    *   taxRegimeCode?: string;
    *   economicActivityCode?: string;
-   *   userType: ('Client' | 'Seller' | 'Supplier')[];
+   *   userType: ('Cliente' | 'Proveedor' | 'Vendedor')[];
    * } | null} user
    */
   static getUser ({ id }) {
@@ -366,13 +368,13 @@ export class UserRepository {
           u.names = user._tb_clients.names;
           u.surnames = user._tb_clients.surnames ?? '';
           u.gender = user._tb_clients._tb_gender.gender;
-          u.userType.push('Client');
+          u.userType.push('Cliente');
         }
         if (user._tb_sellers) {
           u.names = user._tb_sellers.names;
           u.surnames = user._tb_sellers.surnames ?? '';
           u.gender = user._tb_sellers._tb_gender.gender;
-          u.userType.push('Seller');
+          u.userType.push('Vendedor');
           u.seller = {};
           u.seller.role = user._tb_sellers._tb_role.role;
           u.seller.topOf = user._tb_sellers._tb_hierarchy._seller
@@ -386,7 +388,7 @@ export class UserRepository {
         }
         if (user._tb_suppliers) {
           u.businessName = user._tb_suppliers.business_name;
-          u.userType.push('Suppliers');
+          u.userType.push('Proveedor');
         }
 
         return u;
@@ -543,14 +545,14 @@ export class UserRepository {
     user.save();
 
     const userTypes = this.getUserTypes({ id });
-    if (userTypes.includes('Client')) {
+    if (userTypes.includes('Cliente')) {
       const client = Clients.findOne({ _id: id });
       if (names) client.names = names;
       if (surnames) client.surnames = surnames;
       if (genderId) client.gender_id = genderId;
       client.save();
     }
-    if (userTypes.includes('Seller')) {
+    if (userTypes.includes('Vendedor')) {
       const seller = Sellers.findOne({ _id: id });
       if (names) seller.names = names;
       if (surnames) seller.surnames = surnames;
@@ -561,7 +563,7 @@ export class UserRepository {
       if (economicActivityCode) seller.economic_activity_code = economicActivityCode;
       seller.save();
     }
-    if (userTypes.includes('Supplier')) {
+    if (userTypes.includes('Proveedor')) {
       const supplier = Suppliers.findOne({ _id: id });
       if (businessName) supplier.business_name = businessName;
       supplier.save();
