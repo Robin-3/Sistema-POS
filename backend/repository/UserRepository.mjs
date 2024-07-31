@@ -321,7 +321,7 @@ export class UserRepository {
    *   surnames?: string;
    *   businessName?: string;
    *   gender?: string;
-   *   seller: {
+   *   seller?: {
    *     role: string;
    *     topOf: {
    *       id: string;

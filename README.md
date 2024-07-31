@@ -3,21 +3,26 @@
 ## Frontend
 
 ```textplain
-/
-├── login/
-└── users/
-    ├── clients/
-    ├── sellers/
-    └── suppliers/
+/ - Panel de adminsitración
+├── login/ - Formulario de inicio de sesión
+├── user/
+│   ├── profile/ - Vista del perfil actual
+│   └── [id]/    - Vista de un usuario
+└── users/ - Lista de todos los usuarios
+    └── [type]/ - Lista de usuarios por tipo
+
+type: clients, sellers, suppliers
 ```
 
 ## Backend
 
 ```textplain
 api/
-├── POST login/    - Inicia sesión (Vendedor)
-├── POST logout/   - Cierra sesión
-└── GET  users/    - Lista todos los usuarios
+├── db/
+│   └── POST initial-values/ - Carga valores iniciales en la base de datos (enums)
+├── POST login/  - Inicia sesión (Vendedor)
+├── POST logout/ - Cierra sesión
+└── GET  users/  - Lista todos los usuarios
     ├── GET    :id/      - Obtiene la información general del usuario
     ├── GET    :type/    - Lista todos los usuarios de un tipo
     ├── POST   :type/    - Crea un nuevo usuario del tipo mencionado
