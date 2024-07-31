@@ -24,8 +24,6 @@ app.use(cors({
   credentials: true
 }));
 
-app.disable('x-powered-by');
-
 app.use('/api', loginRouter);
 app.use('/api', logoutRouter);
 app.use('/api', usersRouter);
