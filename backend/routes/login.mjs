@@ -19,18 +19,52 @@ router.post('/login', async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    res
-      .cookie(TOKEN, token, {
-        httpOnly: true,
-        secure: ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 24 * 60 * 60
-      })
-      .send({ seller });
+    if (ENV === 'development') {
+      res
+        .cookie(TOKEN, token, {
+          httpOnly: true,
+          secure: ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 24 * 60 * 60
+        })
+        .send({ [TOKEN]: token });
+    } else {
+      res
+        .cookie(TOKEN, token, {
+          httpOnly: true,
+          secure: ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 24 * 60 * 60
+        })
+        .status(204)
+        .send();
+    }
   } catch (error) {
     if (ENV === 'development') console.error(error);
     res.status(401).send('Failed to login');
   }
 });
+
+if (ENV === 'development') {
+  router.post('/login/session', (req, res) => {
+    const {
+      token: tokenAsString
+    } = req.body;
+    if (tokenAsString) {
+      const token = JSON.parse(tokenAsString);
+      res
+        .cookie(TOKEN, token[TOKEN], {
+          httpOnly: true,
+          secure: ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 24 * 60 * 60
+        })
+        .status(204)
+        .send();
+    } else {
+      res.status(403).send();
+    }
+  });
+}
 
 export default router;

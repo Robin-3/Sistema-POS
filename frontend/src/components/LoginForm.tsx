@@ -1,26 +1,59 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useState, useEffect } from "react";
 
-export default function LoginForm({ url }: { url: string }) {
+export default function LoginForm({ url, isDev }: { url: string, isDev: boolean }) {
   const [responseMessage, setResponseMessage] = useState("");
   const [responseOk, setResponseOk] = useState(false);
 
-  const submit = (e: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (isDev) {
+      const session = localStorage.getItem('session');
+      if (session) {
+        const { token, createdAt } = JSON.parse(session) as { token: any, createdAt: number };
+        const limit = 24 * 60 * 60 * 1000 + createdAt;
+        if (Date.now() <= limit) {
+          const formData = new FormData();
+          formData.append("token", JSON.stringify(token));
+          console.log({ token });
+
+          fetch(url+"/session", {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          }).then(res => {
+            if (res.ok) {
+              setResponseOk(true);
+              setResponseMessage("Sesión iniciada. Redirigiendo...");
+              window.location.href = "/";
+            }
+          });
+        }
+      }
+    }
+  }, []);
+
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget as HTMLFormElement);
 
-    fetch(url, {
+    const response = await fetch(url, {
       method: "POST",
       credentials: "include",
       body: formData,
-    }).then((res) => {
-      setResponseOk(res.ok);
-      if (res.ok) {
-        setResponseMessage("Sesión iniciada. Redirigiendo...");
-        window.location.href = "/";
-      } else {
-        setResponseMessage("Error al iniciar sesión");
-      }
     });
+    setResponseOk(response.ok);
+    if (!response.ok) {
+      setResponseMessage("Error al iniciar sesión");
+      return;
+    }
+    setResponseMessage("Sesión iniciada. Redirigiendo...");
+    window.location.href = "/";
+    if (isDev) {
+      const data = await response.json();
+      localStorage.setItem('session', JSON.stringify({
+        token: data,
+        createdAt: Date.now()
+      }));
+    }
   }
 
   return (

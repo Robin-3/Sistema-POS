@@ -5,7 +5,7 @@ const TOKEN = import.meta.env.TOKEN;
 const TOKEN_KEY = import.meta.env.TOKEN_KEY;
 const URL_HOST = import.meta.env.URL_HOST;
 const PUBLIC_ROUTES = ['/login', '/register'];
-
+const DEV = import.meta.env.DEV;
 
 const verifyAuth = (token?: string) => {
   if (!token) {
@@ -46,11 +46,15 @@ export const onRequest = defineMiddleware(({ url, cookies, locals }, next) => {
     return Response.redirect(new URL('/login', URL_HOST));
   }
 
-  if (validation.status === 'error' || validation.status === 'unauthorized')
+  if (validation.status === 'error' || validation.status === 'unauthorized') {
+    if (DEV)
+      return Response.redirect(new URL('/login', URL_HOST));
+
     return new Response(
       JSON.stringify({ message: validation.message }),
       { status: 401 }
     );
+  }
 
   return Response.redirect(new URL('/', url));
 });
