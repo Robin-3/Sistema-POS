@@ -16,17 +16,17 @@
     "front:build": "npm run build --worspace=frontend",
     "front:preview": "npm run preview --worspace=frontend",
     "front:astro": "npm run astro --worspace=frontend",
-    "lint": "npx semistandard",
-    "lint:fix": "npx semistandard --fix"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix"
   },
   "keywords": [],
   "author": "",
   "description": "",
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "semistandard": "17.0.0"
-  },
-  "eslintConfig": {
-    "extends": "semistandard"
+    "@typescript-eslint/eslint-plugin": "8.0.0",
+    "@typescript-eslint/parser": "8.0.0",
+    "concurrently": "8.2.2",
+    "semistandard": "17.0.0",
+    "typescript": "5.5.4"
   }
 }

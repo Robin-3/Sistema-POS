@@ -1,37 +1,40 @@
-import { type FormEvent, useState, useEffect } from "react";
-import Toast from "./Toast";
+import { type FormEvent, useState, useEffect } from 'react';
+import Toast from './Toast';
 
-export default function LoginForm({ url, isDev }: { url: string, isDev: boolean }) {
+export default function LoginForm ({ url, isDev }: { url: string, isDev: boolean }) {
   const [showToast, setShowToast] = useState(false);
-  const [typeToast, setTypeToast] = useState<'info' | 'danger' | 'success'>("info");
-  const [messageToast, setMessageToast] = useState("");
+  const [typeToast, setTypeToast] = useState<'info' | 'danger' | 'success'>('info');
+  const [messageToast, setMessageToast] = useState('');
 
   useEffect(() => {
     if (isDev) {
       const session = localStorage.getItem('session');
       if (session) {
         setShowToast(true);
-        setTypeToast("info");
-        setMessageToast("Recuperando sesión");
-        const { token, createdAt } = JSON.parse(session) as { token: any, createdAt: number };
+        setTypeToast('info');
+        setMessageToast('Recuperando sesión');
+        const { token, createdAt } = JSON.parse(session) as {
+          token: { tokenName: string };
+          createdAt: number;
+        };
         const limit = 24 * 60 * 60 * 1000 + createdAt;
         if (Date.now() <= limit) {
           const formData = new FormData();
-          formData.append("token", JSON.stringify(token));
+          formData.append('token', JSON.stringify(token));
           console.log({ token });
 
-          fetch(url + "/session", {
-            method: "POST",
-            credentials: "include",
-            body: formData,
+          fetch(url + '/session', {
+            method: 'POST',
+            credentials: 'include',
+            body: formData
           }).then(res => {
             setShowToast(false);
             if (res.ok) {
               setShowToast(true);
-              setTypeToast("success");
-              setMessageToast("Sesión recuperada");
+              setTypeToast('success');
+              setMessageToast('Sesión recuperada');
 
-              window.location.href = "/";
+              window.location.href = '/';
             }
           });
         }
@@ -45,19 +48,19 @@ export default function LoginForm({ url, isDev }: { url: string, isDev: boolean 
     console.log(formData);
 
     const response = await fetch(url, {
-      method: "POST",
-      credentials: "include",
-      body: formData,
+      method: 'POST',
+      credentials: 'include',
+      body: formData
     });
     setShowToast(true);
     if (!response.ok) {
-      setTypeToast("danger");
-      setMessageToast("Error al iniciar sesión");
+      setTypeToast('danger');
+      setMessageToast('Error al iniciar sesión');
       return;
     }
 
-    setTypeToast("success");
-    setMessageToast("Sesión iniciada");
+    setTypeToast('success');
+    setMessageToast('Sesión iniciada');
 
     if (isDev) {
       const data = await response.json();
@@ -67,8 +70,8 @@ export default function LoginForm({ url, isDev }: { url: string, isDev: boolean 
       }));
     }
 
-    window.location.href = "/";
-  }
+    window.location.href = '/';
+  };
 
   return (
     <>

@@ -23,14 +23,14 @@ const verifyAuth = (token?: string) => {
       data
     };
   } catch (error) {
-    if(import.meta.env.DEV) console.error(error);
+    if (import.meta.env.DEV) console.error(error);
 
     return {
       status: 'error',
       message: 'could not validate auth token'
     };
   }
-}
+};
 
 export const onRequest = defineMiddleware(({ url, cookies, locals }, next) => {
   console.log(url.pathname);
@@ -42,13 +42,12 @@ export const onRequest = defineMiddleware(({ url, cookies, locals }, next) => {
   if (validation.status === 'authorized') {
     locals.user = validation.data!;
     return next();
-  } else if(url.pathname === '/') {
+  } else if (url.pathname === '/') {
     return Response.redirect(new URL('/login', URL_HOST));
   }
 
   if (validation.status === 'error' || validation.status === 'unauthorized') {
-    if (DEV)
-      return Response.redirect(new URL('/login', URL_HOST));
+    if (DEV) { return Response.redirect(new URL('/login', URL_HOST)); }
 
     return new Response(
       JSON.stringify({ message: validation.message }),

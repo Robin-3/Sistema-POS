@@ -1,24 +1,24 @@
-import { type MouseEvent, useState } from "react";
-import Toast from "./Toast";
+import { type MouseEvent, useState } from 'react';
+import Toast from './Toast';
 
-export default function LogoutButton({ url, isDev }: { url: string; isDev: boolean }) {
+export default function LogoutButton ({ url, isDev }: { url: string; isDev: boolean }) {
   const [showToast, setShowToast] = useState(false);
 
   const submit = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     fetch(url, {
-      method: "POST",
-      credentials: "include"
+      method: 'POST',
+      credentials: 'include'
     }).then((res) => {
       if (res.ok) {
         if (isDev) localStorage.removeItem('session');
 
         setShowToast(true);
-        window.location.href = "./login";
+        window.location.href = './login';
       }
     });
-  }
+  };
 
   return (
     <>

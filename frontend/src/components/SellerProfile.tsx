@@ -36,7 +36,7 @@ const SellerUpdateForm = ({ seller }: {
     };
     taxRegimeCode?: string;
     economicActivityCode?: string;
-    userType: ("Cliente" | "Proveedor" | "Vendedor")[];
+    userType: ('Cliente' | 'Proveedor' | 'Vendedor')[];
   };
 }) => {
   const [generalExpanded, setGeneralExpanded] = useState(true);
@@ -81,7 +81,7 @@ const SellerUpdateForm = ({ seller }: {
             {generalExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
           {(
-            <div className={`${!generalExpanded ? "hidden " : ""}mt-4 space-y-4`}>
+            <div className={`${!generalExpanded ? 'hidden ' : ''}mt-4 space-y-4`}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label htmlFor="id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -249,7 +249,7 @@ const SellerUpdateForm = ({ seller }: {
             {contactExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
           </button>
           {(
-            <div className={`${!contactExpanded ? "hidden " : ""}mt-4 space-y-4`}>
+            <div className={`${!contactExpanded ? 'hidden ' : ''}mt-4 space-y-4`}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
