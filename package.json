@@ -17,9 +17,9 @@
     "front:preview": "npm run preview --worspace=frontend",
     "front:astro": "npm run astro --worspace=frontend",
     "lint": "npm run lint:format && npm run lint:fix",
-    "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
-    "lint:format": "prettier --write \"{frontend,backend}/**/*.{js,jsx,ts,tsx,json,css,md}\""
+    "lint:check": "eslint . --ext .js,.jsx,.ts,.tsx,.astro,.mjs",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro,.mjs --fix",
+    "lint:format": "prettier --write \"{frontend,backend}/**/*.{js,jsx,ts,tsx,json,css,md,astro,mjs}\""
   },
   "keywords": [],
   "author": "",
@@ -29,8 +29,11 @@
     "@typescript-eslint/parser": "8.0.0",
     "concurrently": "8.2.2",
     "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-astro": "1.2.3",
+    "eslint-plugin-import": "2.29.1",
     "eslint-plugin-prettier": "5.2.1",
     "prettier": "3.3.3",
+    "prettier-plugin-astro": "0.14.1",
     "semistandard": "17.0.0",
     "typescript": "5.5.4"
   }
