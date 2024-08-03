@@ -1,5 +1,5 @@
 ---
-import Layout from "@/layouts/MainLayout.astro";
+import MainLayout from "@/layouts/MainLayout.astro";
 import UserCard from "@/components/UserCard.astro";
 
 const URL = import.meta.env.URL_API_USERS;
@@ -51,7 +51,7 @@ const users = data
   });
 ---
 
-<Layout title="Usuarios">
+<MainLayout title="Usuarios">
   <h1
     class="text-center p-8 text-3xl font-semibold whitespace-nowrap dark:text-white"
   >
@@ -60,4 +60,4 @@ const users = data
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
     {users.map((user) => <UserCard user={user} />)}
   </div>
-</Layout>
+</MainLayout>

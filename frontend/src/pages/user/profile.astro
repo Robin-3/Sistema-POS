@@ -1,5 +1,5 @@
 ---
-import Layout from "@/layouts/MainLayout.astro";
+import MainLayout from "@/layouts/MainLayout.astro";
 import SellerUpdateForm from "@/components/SellerProfile";
 
 const { user } = Astro.locals;
@@ -54,8 +54,8 @@ const sellerData = {
 };
 ---
 
-<Layout title="Perfil">
+<MainLayout title="Perfil">
   <div class="container mx-auto p-4">
     <SellerUpdateForm seller={sellerData} client:load />
   </div>
-</Layout>
+</MainLayout>
