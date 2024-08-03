@@ -1,0 +1,6 @@
+@hostname = localhost
+@port = 8080
+@host = {{hostname}}:{{port}}
+
+###
+GET http://{{host}}/api/db/list/identifications HTTP/1.1

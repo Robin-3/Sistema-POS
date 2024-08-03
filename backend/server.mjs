@@ -6,6 +6,7 @@ import multer from 'multer';
 import loginRouter from './routes/login.mjs';
 import logoutRouter from './routes/logout.mjs';
 import usersRouter from './routes/users.mjs';
+import dbRouter from './routes/db.mjs';
 import configDBRouter from './routes/configDB.mjs';
 import { handler as astroHandler } from '../frontend/dist/server/entry.mjs';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -18,15 +19,18 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(upload.none());
 app.use(logger('dev'));
-app.use(cors({
-  origin: ACCEPTED_ORIGINS,
-  methods: 'POST',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ACCEPTED_ORIGINS,
+    methods: 'POST',
+    credentials: true
+  })
+);
 
 app.use('/api', loginRouter);
 app.use('/api', logoutRouter);
 app.use('/api', usersRouter);
+app.use('/api/db', dbRouter);
 app.use('/api/db', configDBRouter);
 
 if (ENV === 'development') {

@@ -6,6 +6,7 @@ interface ImportMetaEnv {
   readonly URL_API_LOGIN: string;
   readonly URL_API_LOGOUT: string;
   readonly URL_API_USERS: string;
+  readonly URL_API_LIST_IDENTIFICATIONS: string;
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv;
@@ -14,11 +15,11 @@ interface ImportMeta {
 declare namespace App {
   interface Locals {
     user: {
-      id: string,
-      names: string,
-      surnames: string,
-      image?: string,
-      role: string
-    }
+      id: string;
+      names: string;
+      surnames: string;
+      image?: string;
+      role: string;
+    };
   }
 }

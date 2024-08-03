@@ -18,6 +18,7 @@ import {
 export class UserRepository {
   /**
    * @param {{
+   *   identificationTypeId: number;
    *   identificationNumber: string;
    *   password: string;
    * }} options
@@ -29,11 +30,18 @@ export class UserRepository {
    *   role: string;
    * }} seller
    */
-  static async loginSeller({ identificationNumber, password }) {
+  static async loginSeller({
+    identificationTypeId,
+    identificationNumber,
+    password
+  }) {
     Validations.identificationNumber(identificationNumber);
     Validations.password(password);
 
-    const user = Users.findOne({ identification_number: identificationNumber });
+    const user = Users.findOne({
+      identification_id: identificationTypeId,
+      identification_number: identificationNumber
+    });
     if (!user) throw new Error('User does not exist');
 
     const seller = Sellers.findOne({ _id: user._id });

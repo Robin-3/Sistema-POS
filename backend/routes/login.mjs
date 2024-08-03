@@ -7,17 +7,18 @@ const router = express.Router();
 
 router.post('/login', async (req, res) => {
   const {
+    'identification-type': identificationType = '0',
     'identification-number': identificationNumber = '',
     password = ''
   } = req.body;
 
   try {
-    const seller = await UserRepository.loginSeller({ identificationNumber, password });
-    const token = jwt.sign(
-      seller,
-      TOKEN_KEY,
-      { expiresIn: '1d' }
-    );
+    const seller = await UserRepository.loginSeller({
+      identificationTypeId: Number(identificationType),
+      identificationNumber,
+      password
+    });
+    const token = jwt.sign(seller, TOKEN_KEY, { expiresIn: '1d' });
 
     if (ENV === 'development') {
       res
@@ -47,9 +48,7 @@ router.post('/login', async (req, res) => {
 
 if (ENV === 'development') {
   router.post('/login/session', (req, res) => {
-    const {
-      token: tokenAsString
-    } = req.body;
+    const { token: tokenAsString } = req.body;
     if (tokenAsString) {
       const token = JSON.parse(tokenAsString);
       res
