@@ -3,5 +3,11 @@
   "editor.formatOnPaste": true,
   "editor.formatOnSave": true,
   "files.autoSave": "onFocusChange",
-  "editor.tabSize": 2
+  "editor.tabSize": 2,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ]
 }
