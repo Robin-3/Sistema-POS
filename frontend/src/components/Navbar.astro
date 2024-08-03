@@ -1,7 +1,8 @@
 ---
 import MenuSidebar from "@/components/MenuSidebar.astro";
+import ThemeToggle from "./ThemeToggle";
 import LogoutButton from "@/components/LogoutButton";
-import { ChevronDown, HandCoins, Menu } from "lucide";
+import { HandCoins, Menu } from "lucide";
 import LucideIcon from "./LucideIcon.astro";
 
 const URL = import.meta.env.URL_API_LOGOUT;
@@ -40,6 +41,7 @@ const imgUrl =
         </a>
       </div>
       <div class="flex items-center">
+        <ThemeToggle client:visible />
         <div class="flex items-center ms-3">
           <div>
             <button
