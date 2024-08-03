@@ -22,6 +22,7 @@
       "dbaeumer.vscode-eslint"
       "usernamehw.errorlens"
       "humao.rest-client"
+      "esbenp.prettier-vscode"
     ];
     # Enable previews
     previews = {
