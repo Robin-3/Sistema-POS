@@ -48,8 +48,10 @@ const data = (await response.json()) as {
 const name = (data.names + " " + data.surnames).trim();
 const sellerData = {
   ...data,
-  image: data.image ?? `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`,
-}
+  image:
+    data.image ??
+    `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`
+};
 ---
 
 <Layout title="Perfil">

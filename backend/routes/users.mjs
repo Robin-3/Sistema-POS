@@ -1,10 +1,10 @@
-import express from 'express';
-import { UserRepository } from '../repository/UserRepository.mjs';
-import { ENV } from '../config.mjs';
+import express from "express";
+import { UserRepository } from "../repository/UserRepository.mjs";
+import { ENV } from "../config.mjs";
 
 const router = express.Router();
 
-router.get('/users/:id', (req, res, next) => {
+router.get("/users/:id", (req, res, next) => {
   const id = req.params.id;
 
   try {
@@ -15,28 +15,28 @@ router.get('/users/:id', (req, res, next) => {
       next();
     }
   } catch (error) {
-    if (ENV === 'development') console.error(error);
-    res.status(500).send('Error getting users');
+    if (ENV === "development") console.error(error);
+    res.status(500).send("Error getting users");
   }
 });
 
-router.get('/users/:type?', (req, res, next) => {
+router.get("/users/:type?", (req, res) => {
   const type = req.params.type;
 
   try {
-    if (!type || ['clients', 'sellers', 'suppliers'].includes(type)) {
+    if (!type || ["clients", "sellers", "suppliers"].includes(type)) {
       const users = UserRepository.getAllUsers({ type });
       res.send(users);
     } else {
-      res.status(400).send('Invalid user type');
+      res.status(400).send("Invalid user type");
     }
   } catch (error) {
-    if (ENV === 'development') console.error(error);
-    res.status(500).send('Error getting users');
+    if (ENV === "development") console.error(error);
+    res.status(500).send("Error getting users");
   }
 });
 
-router.post('/users/:type', async (req, res) => {
+router.post("/users/:type", async (req, res) => {
   const { type } = req.params;
   const {
     id,
@@ -57,7 +57,7 @@ router.post('/users/:type', async (req, res) => {
 
   try {
     let idUser;
-    if (type === 'clients') {
+    if (type === "clients") {
       idUser = UserRepository.createClient({
         id,
         identificationId,
@@ -69,7 +69,7 @@ router.post('/users/:type', async (req, res) => {
         surnames,
         genderId
       });
-    } else if (type === 'sellers') {
+    } else if (type === "sellers") {
       idUser = await UserRepository.createSeller({
         id,
         identificationId,
@@ -85,7 +85,7 @@ router.post('/users/:type', async (req, res) => {
         taxRegimeCode,
         economicActivityCode
       });
-    } else if (type === 'suppliers') {
+    } else if (type === "suppliers") {
       idUser = UserRepository.createSupplier({
         id,
         identificationId,
@@ -96,17 +96,17 @@ router.post('/users/:type', async (req, res) => {
         businessName
       });
     } else {
-      res.status(400).send('Invalid user type');
+      res.status(400).send("Invalid user type");
     }
 
     res.send(UserRepository.getUser({ id: idUser }));
   } catch (error) {
-    if (ENV === 'development') console.error(error);
-    res.status(500).send('Error creating user');
+    if (ENV === "development") console.error(error);
+    res.status(500).send("Error creating user");
   }
 });
 
-router.patch('/users/:id', async (req, res) => {
+router.patch("/users/:id", async (req, res) => {
   const { id } = req.params;
   const {
     identification_id: identificationId,
@@ -144,43 +144,43 @@ router.patch('/users/:id', async (req, res) => {
 
     res.send(UserRepository.getUser({ id }));
   } catch (error) {
-    if (ENV === 'development') console.error(error);
-    res.status(500).send('Error updating user');
+    if (ENV === "development") console.error(error);
+    res.status(500).send("Error updating user");
   }
 });
 
-router.delete('/users/:id', (req, res) => {
+router.delete("/users/:id", (req, res) => {
   const id = req.params.id;
 
   try {
     UserRepository.removeUser({ id });
     res.status(204).send();
   } catch (error) {
-    if (ENV === 'development') console.error(error);
-    res.status(500).send('Error removing user');
+    if (ENV === "development") console.error(error);
+    res.status(500).send("Error removing user");
   }
 });
 
-router.delete('/users/:type/:id', (req, res) => {
+router.delete("/users/:type/:id", (req, res) => {
   const { type, id } = req.params;
 
   try {
-    if (type === 'clients') {
+    if (type === "clients") {
       UserRepository.removeClient({ id });
-    } else if (type === 'sellers') {
+    } else if (type === "sellers") {
       UserRepository.removeSeller({ id });
-    } else if (type === 'suppliers') {
+    } else if (type === "suppliers") {
       UserRepository.removeSupplier({ id });
     } else {
-      res.status(400).send('Invalid user type');
+      res.status(400).send("Invalid user type");
     }
     const userTypes = UserRepository.getUserTypes({ id });
     if (userTypes.length === 0) UserRepository.removeUser({ id });
 
     res.status(204).send();
   } catch (error) {
-    if (ENV === 'development') console.error(error);
-    res.status(500).send('Error removing user');
+    if (ENV === "development") console.error(error);
+    res.status(500).send("Error removing user");
   }
 });
 

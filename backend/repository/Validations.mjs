@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 import {
   Clients,
   EnumGender,
@@ -7,31 +7,31 @@ import {
   Sellers,
   Suppliers,
   Users
-} from './database.mjs';
+} from "./database.mjs";
 
 export class Validations {
   static id(id) {
     const idSchema = z
       .string()
-      .uuid({ message: 'The ID must have a valid UUID syntax' });
+      .uuid({ message: "The ID must have a valid UUID syntax" });
     idSchema.parse(id);
   }
 
   static identificationId(identificationId) {
     const identificationSchema = z
       .number()
-      .int({ message: 'The identification ID must be an integer' });
+      .int({ message: "The identification ID must be an integer" });
     identificationSchema.parse(identificationId);
 
     const identification = EnumIdentification.findOne({
       _id: identificationId
     });
-    if (!identification) throw new Error('Identification does not exist');
+    if (!identification) throw new Error("Identification does not exist");
   }
 
   static identificationNumber(identificationNumber) {
     const numberSchema = z.string().min(3, {
-      message: 'The identification number must be more than 3 characters'
+      message: "The identification number must be more than 3 characters"
     });
     numberSchema.parse(identificationNumber);
   }
@@ -39,16 +39,16 @@ export class Validations {
   static image(image) {
     const imageSchema = z
       .string()
-      .url({ message: 'The image must have a valid URL syntax' })
+      .url({ message: "The image must have a valid URL syntax" })
       .optional();
     imageSchema.parse(image);
   }
 
   static timestamp(timestamp) {
     const timestampSchema = z
-      .number({ message: 'The timestamp must be a number' })
-      .positive({ message: 'The timestamp must be a positive number' })
-      .int({ message: 'The timestamp must be an integer' });
+      .number({ message: "The timestamp must be a number" })
+      .positive({ message: "The timestamp must be a positive number" })
+      .int({ message: "The timestamp must be an integer" });
     timestampSchema.parse(timestamp);
   }
 
@@ -72,7 +72,7 @@ export class Validations {
   }) {
     Validations.id(id);
     const user = Users.findOne({ _id: id });
-    if (user) throw new Error('The user already exists');
+    if (user) throw new Error("The user already exists");
 
     Validations.identificationId(identificationId);
     Validations.identificationNumber(identificationNumber);
@@ -80,7 +80,7 @@ export class Validations {
       identification_id: identificationId,
       identification_number: identificationNumber
     });
-    if (identification) throw new Error('The identification already exists');
+    if (identification) throw new Error("The identification already exists");
 
     Validations.image(image);
 
@@ -91,14 +91,14 @@ export class Validations {
   static names(names) {
     const namesSchema = z
       .string()
-      .min(1, { message: 'The names field cannot be empty' });
+      .min(1, { message: "The names field cannot be empty" });
     namesSchema.parse(names);
   }
 
   static surnames(surnames) {
     const surnamesSchema = z
       .string()
-      .min(1, { message: 'The surnames field cannot be empty' })
+      .min(1, { message: "The surnames field cannot be empty" })
       .optional();
     surnamesSchema.parse(surnames);
   }
@@ -106,11 +106,11 @@ export class Validations {
   static genderId(genderId) {
     const genderSchema = z
       .number()
-      .int({ message: 'The gender ID must be an integer' });
+      .int({ message: "The gender ID must be an integer" });
     genderSchema.parse(genderId);
 
     const gender = EnumGender.findOne({ _id: genderId });
-    if (!gender) throw new Error('Gender does not exist');
+    if (!gender) throw new Error("Gender does not exist");
   }
 
   /**
@@ -125,7 +125,7 @@ export class Validations {
   static client({ id, names, surnames, genderId }) {
     Validations.id(id);
     const client = Clients.findOne({ _id: id });
-    if (client) throw new Error('The client already exists');
+    if (client) throw new Error("The client already exists");
 
     Validations.names(names);
     Validations.surnames(surnames);
@@ -136,28 +136,28 @@ export class Validations {
   static roleId(roleId) {
     const roleSchema = z
       .number()
-      .int({ message: 'The role ID must be an integer' });
+      .int({ message: "The role ID must be an integer" });
     roleSchema.parse(roleId);
 
     const role = EnumRole.findOne({ _id: roleId });
-    if (!role) throw new Error('Role does not exist');
+    if (!role) throw new Error("Role does not exist");
   }
 
   static password(password) {
     const passwordSchema = z
       .string()
-      .min(8, { message: 'The password must have at least 8 characters' })
-      .max(64, { message: 'The password must have at most 64 characters' })
+      .min(8, { message: "The password must have at least 8 characters" })
+      .max(64, { message: "The password must have at most 64 characters" })
       .regex(/[a-z]/, {
-        message: 'The password must contain at least one lowercase letter'
+        message: "The password must contain at least one lowercase letter"
       })
       .regex(/[A-Z]/, {
-        message: 'The password must contain at least one uppercase letter'
+        message: "The password must contain at least one uppercase letter"
       })
-      .regex(/\d/, { message: 'The password must contain at least one number' })
+      .regex(/\d/, { message: "The password must contain at least one number" })
       .regex(/[@$!%*?&]/, {
         message:
-          'The password must contain at least one special character (@, $, !, %, *, ?, &)'
+          "The password must contain at least one special character (@, $, !, %, *, ?, &)"
       });
     passwordSchema.parse(password);
   }
@@ -166,7 +166,7 @@ export class Validations {
     const taxRegimeCodeSchema = z
       .string()
       .min(3, {
-        message: 'The tax regime code must be at least 3 characters long'
+        message: "The tax regime code must be at least 3 characters long"
       })
       .optional();
     taxRegimeCodeSchema.parse(taxRegimeCode);
@@ -176,7 +176,7 @@ export class Validations {
     const economicActivityCodeSchema = z
       .string()
       .min(3, {
-        message: 'The economic activity code must be at least 3 characters long'
+        message: "The economic activity code must be at least 3 characters long"
       })
       .optional();
     economicActivityCodeSchema.parse(economicActivityCode);
@@ -207,7 +207,7 @@ export class Validations {
   }) {
     Validations.id(id);
     const seller = Sellers.findOne({ _id: id });
-    if (seller) throw new Error('The seller already exists');
+    if (seller) throw new Error("The seller already exists");
 
     Validations.names(names);
     Validations.surnames(surnames);
@@ -224,7 +224,7 @@ export class Validations {
   static businessName(businessName) {
     const businessNameSchema = z
       .string()
-      .min(1, { message: 'The business name cannot be empty' });
+      .min(1, { message: "The business name cannot be empty" });
     businessNameSchema.parse(businessName);
   }
 
@@ -238,7 +238,7 @@ export class Validations {
   static supplier({ id, businessName }) {
     Validations.id(id);
     const supplier = Suppliers.findOne({ _id: id });
-    if (supplier) throw new Error('The supplier already exists');
+    if (supplier) throw new Error("The supplier already exists");
 
     Validations.businessName(businessName);
   }
@@ -290,7 +290,7 @@ export class Validations {
       identification_number: identificationNumber
     });
     if (identification && identification._id !== id)
-      throw new Error('The identification already exists');
+      throw new Error("The identification already exists");
 
     Validations.image(image);
 

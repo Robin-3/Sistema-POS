@@ -11,16 +11,24 @@ const identificationList = (await response.json()) as {
   id: string;
   code: string;
 }[];
-
 ---
 
 <Layout title="Inicio de sesión">
-  <div class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
-    <div class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700">
+  <div
+    class="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900"
+  >
+    <div
+      class="w-full max-w-sm p-4 bg-white border border-gray-200 rounded-lg shadow sm:p-6 md:p-8 dark:bg-gray-800 dark:border-gray-700"
+    >
       <h2 class="text-3xl font-bold text-center text-gray-900 dark:text-white">
         Inicio de sesión
       </h2>
-      <LoginForm client:load url={LOGIN_URL} isDev={IS_DEV} identificationList={identificationList} />
+      <LoginForm
+        client:load
+        url={LOGIN_URL}
+        isDev={IS_DEV}
+        identificationList={identificationList}
+      />
     </div>
   </div>
 </Layout>

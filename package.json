@@ -21,6 +21,12 @@
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro,.mjs --fix",
     "lint:format": "prettier --write \"{frontend,backend}/**/*.{js,jsx,ts,tsx,json,css,md,astro,mjs}\""
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,astro,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
   "keywords": [],
   "author": "",
   "description": "",
@@ -32,6 +38,8 @@
     "eslint-plugin-astro": "1.2.3",
     "eslint-plugin-import": "2.29.1",
     "eslint-plugin-prettier": "5.2.1",
+    "husky": "9.1.4",
+    "lint-staged": "15.2.8",
     "prettier": "3.3.3",
     "prettier-plugin-astro": "0.14.1",
     "semistandard": "17.0.0",

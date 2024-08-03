@@ -10,9 +10,10 @@ const { user } = Astro.locals;
 const { names, surnames, role } = user;
 
 const name = (names + " " + surnames).trim();
-const img_url =
+const imgUrl =
   user.image ?? `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`;
 ---
+
 <nav
   class="bg-white dark:bg-gray-900 sticky w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600"
 >
@@ -46,7 +47,7 @@ const img_url =
         data-dropdown-placement="bottom"
       >
         <span class="sr-only">Abrir menú de usuario</span>
-        <img class="w-8 h-8 rounded-full" src={img_url} alt={name} />
+        <img class="w-8 h-8 rounded-full" src={imgUrl} alt={name} />
       </button>
       <!-- Dropdown menu -->
       <div

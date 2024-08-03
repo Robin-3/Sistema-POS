@@ -33,13 +33,13 @@ const data = (await response.json()) as {
   userType: ("Cliente" | "Proveedor" | "Vendedor")[];
 }[];
 const users = data
-  .filter(user => user.id !== id)
+  .filter((user) => user.id !== id)
   .map((user) => {
     const { id, identification, name, image, role, userType } = user;
     const types = userType.map((type) => {
       return {
         type,
-        color: userTypeColor(type),
+        color: userTypeColor(type)
       };
     });
 
@@ -51,7 +51,7 @@ const users = data
         image ??
         `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`,
       role,
-      userType: types,
+      userType: types
     };
   });
 
