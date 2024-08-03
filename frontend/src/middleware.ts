@@ -16,7 +16,13 @@ const verifyAuth = (token?: string) => {
   }
   try {
     const payload = jwt.verify(token, TOKEN_KEY);
-    const data = payload! as {id: string, names: string, surnames: string, image?: string, role: string};
+    const data = payload! as {
+      id: string;
+      names: string;
+      surnames: string;
+      image?: string;
+      role: string;
+    };
     return {
       status: 'authorized',
       message: 'Verified token',
@@ -47,12 +53,13 @@ export const onRequest = defineMiddleware(({ url, cookies, locals }, next) => {
   }
 
   if (validation.status === 'error' || validation.status === 'unauthorized') {
-    if (DEV) { return Response.redirect(new URL('/login', URL_HOST)); }
+    if (DEV) {
+      return Response.redirect(new URL('/login', URL_HOST));
+    }
 
-    return new Response(
-      JSON.stringify({ message: validation.message }),
-      { status: 401 }
-    );
+    return new Response(JSON.stringify({ message: validation.message }), {
+      status: 401
+    });
   }
 
   return Response.redirect(new URL('/', url));

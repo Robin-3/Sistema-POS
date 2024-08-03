@@ -12,4 +12,9 @@ export const {
 
 export const PORT = parseInt(process.env.PORT) || 8080;
 export const ACCEPTED_ORIGINS = process.env.ACCEPTED_ORIGINS.split(',');
-export const PATH = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'frontend', 'dist/client');
+export const PATH = path.join(
+  path.dirname(new URL(import.meta.url).pathname),
+  '..',
+  'frontend',
+  'dist/client'
+);

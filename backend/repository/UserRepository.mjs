@@ -2,7 +2,18 @@ import crypto from 'node:crypto';
 import bcrypt from 'bcrypt';
 import { SALT_ROUNDS } from '../config.mjs';
 import { Validations } from './Validations.mjs';
-import { Users, Sellers, EnumIdentification, EnumRole, Clients, Suppliers, EnumGender, SellerHierarchy, ContactsUsers, EnumContact } from './database.mjs';
+import {
+  Users,
+  Sellers,
+  EnumIdentification,
+  EnumRole,
+  Clients,
+  Suppliers,
+  EnumGender,
+  SellerHierarchy,
+  ContactsUsers,
+  EnumContact
+} from './database.mjs';
 
 export class UserRepository {
   /**
@@ -18,7 +29,7 @@ export class UserRepository {
    *   role: string;
    * }} seller
    */
-  static async loginSeller ({ identificationNumber, password }) {
+  static async loginSeller({ identificationNumber, password }) {
     Validations.identificationNumber(identificationNumber);
     Validations.password(password);
 
@@ -112,41 +123,47 @@ export class UserRepository {
    *   };
    * }[]} allUsers
    */
-  static _allUsers () {
-    const users = Users
-      .find()
-      .map(user => {
-        user._tb_contacts = ContactsUsers
-          .find({ user_id: user._id })
-          .map(contact => {
-            contact._tb_contact = EnumContact.findOne({ _id: contact.contact_id });
-            return contact;
+  static _allUsers() {
+    const users = Users.find().map((user) => {
+      user._tb_contacts = ContactsUsers.find({ user_id: user._id }).map(
+        (contact) => {
+          contact._tb_contact = EnumContact.findOne({
+            _id: contact.contact_id
           });
-        user._tb_identification = EnumIdentification.findOne({ _id: user.identification_id });
-
-        const client = Clients.findOne({ _id: user._id });
-        if (client) {
-          client._tb_gender = EnumGender.findOne({ _id: client.gender_id });
-          user._tb_clients = client;
+          return contact;
         }
-
-        const seller = Sellers.findOne({ _id: user._id });
-        if (seller) {
-          seller._tb_gender = EnumGender.findOne({ _id: seller.gender_id });
-          seller._tb_hierarchy = {};
-          seller._tb_hierarchy._seller = SellerHierarchy.find({ seller_id: seller._id });
-          seller._tb_hierarchy._top_seller = SellerHierarchy.find({ top_seller_id: seller._id });
-          seller._tb_role = EnumRole.findOne({ _id: seller.role_id });
-          user._tb_sellers = seller;
-        }
-
-        const supplier = Suppliers.findOne({ _id: user._id });
-        if (supplier) {
-          user._tb_suppliers = supplier;
-        }
-
-        return user;
+      );
+      user._tb_identification = EnumIdentification.findOne({
+        _id: user.identification_id
       });
+
+      const client = Clients.findOne({ _id: user._id });
+      if (client) {
+        client._tb_gender = EnumGender.findOne({ _id: client.gender_id });
+        user._tb_clients = client;
+      }
+
+      const seller = Sellers.findOne({ _id: user._id });
+      if (seller) {
+        seller._tb_gender = EnumGender.findOne({ _id: seller.gender_id });
+        seller._tb_hierarchy = {};
+        seller._tb_hierarchy._seller = SellerHierarchy.find({
+          seller_id: seller._id
+        });
+        seller._tb_hierarchy._top_seller = SellerHierarchy.find({
+          top_seller_id: seller._id
+        });
+        seller._tb_role = EnumRole.findOne({ _id: seller.role_id });
+        user._tb_sellers = seller;
+      }
+
+      const supplier = Suppliers.findOne({ _id: user._id });
+      if (supplier) {
+        user._tb_suppliers = supplier;
+      }
+
+      return user;
+    });
 
     return users;
   }
@@ -157,7 +174,7 @@ export class UserRepository {
    * }} options
    * @returns {('Cliente' | 'Proveedor' | 'Vendedor')[]} user types
    */
-  static getUserTypes ({ id }) {
+  static getUserTypes({ id }) {
     const userTypes = [];
     const client = Clients.findOne({ _id: id });
     if (client) userTypes.push('Cliente');
@@ -186,9 +203,18 @@ export class UserRepository {
    *   role: string;
    * }} Seller
    */
-  static _getSellerPretty ({ id }) {
-    const user = Users.findOne({ _id: id, _tb_identification: { $ref: 'enum_identification', $id: '$data.identification_id' } });
-    const seller = Sellers.findOne({ _id: id, _tb_role: { $ref: 'enum_role', $id: '$data.role_id' } });
+  static _getSellerPretty({ id }) {
+    const user = Users.findOne({
+      _id: id,
+      _tb_identification: {
+        $ref: 'enum_identification',
+        $id: '$data.identification_id'
+      }
+    });
+    const seller = Sellers.findOne({
+      _id: id,
+      _tb_role: { $ref: 'enum_role', $id: '$data.role_id' }
+    });
 
     const s = {};
     s.id = id;
@@ -216,12 +242,26 @@ export class UserRepository {
    * }} options
    * @returns {string} id
    */
-  static _createUser ({ id, identificationId, identificationNumber, image, createdAt, updatedAt }) {
+  static _createUser({
+    id,
+    identificationId,
+    identificationNumber,
+    image,
+    createdAt,
+    updatedAt
+  }) {
     if (!id) id = crypto.randomUUID();
     if (!createdAt) createdAt = Date.now();
     if (!updatedAt) updatedAt = Date.now();
 
-    Validations.user({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+    Validations.user({
+      id,
+      identificationId,
+      identificationNumber,
+      image,
+      createdAt,
+      updatedAt
+    });
 
     const u = {};
     u._id = id;
@@ -253,9 +293,9 @@ export class UserRepository {
    *   userType: ('Cliente' | 'Proveedor' | 'Vendedor')[];
    * }[]} allUsers
    */
-  static getAllUsers ({ type }) {
+  static getAllUsers({ type }) {
     const users = UserRepository._allUsers()
-      .filter(user => {
+      .filter((user) => {
         if (!type) return true;
 
         const typeMapping = {
@@ -266,7 +306,7 @@ export class UserRepository {
 
         return typeMapping[type] in user;
       })
-      .map(user => {
+      .map((user) => {
         const u = {};
         u.id = user._id;
         u.identification = {
@@ -341,12 +381,12 @@ export class UserRepository {
    *   userType: ('Cliente' | 'Proveedor' | 'Vendedor')[];
    * } | null} user
    */
-  static getUser ({ id }) {
+  static getUser({ id }) {
     const user = UserRepository._allUsers()
-      .filter(user => {
+      .filter((user) => {
         return user._id === id;
       })
-      .map(user => {
+      .map((user) => {
         const u = {};
         u.id = user._id;
         u.identification = {
@@ -356,13 +396,12 @@ export class UserRepository {
         };
         if (user.image) u.image = user.image;
         u.created_at = user.created_at;
-        u.contacts = user._tb_contacts
-          .map(contact => {
-            return {
-              contact: contact.contact,
-              type: contact._tb_contact.contact
-            };
-          });
+        u.contacts = user._tb_contacts.map((contact) => {
+          return {
+            contact: contact.contact,
+            type: contact._tb_contact.contact
+          };
+        });
         u.userType = [];
         if (user._tb_clients) {
           u.names = user._tb_clients.names;
@@ -377,14 +416,17 @@ export class UserRepository {
           u.userType.push('Vendedor');
           u.seller = {};
           u.seller.role = user._tb_sellers._tb_role.role;
-          u.seller.topOf = user._tb_sellers._tb_hierarchy._seller
-            .map(seller => {
+          u.seller.topOf = user._tb_sellers._tb_hierarchy._seller.map(
+            (seller) => {
               const s = UserRepository._getSellerPretty({ id: seller._id });
 
               return s;
-            });
-          if (user._tb_sellers.tax_regime_code) u.taxRegimeCode = user._tb_sellers.tax_regime_code;
-          if (user._tb_sellers.economic_activity_code) u.economicActivityCode = user._tb_sellers.economic_activity_code;
+            }
+          );
+          if (user._tb_sellers.tax_regime_code)
+            u.taxRegimeCode = user._tb_sellers.tax_regime_code;
+          if (user._tb_sellers.economic_activity_code)
+            u.economicActivityCode = user._tb_sellers.economic_activity_code;
         }
         if (user._tb_suppliers) {
           u.businessName = user._tb_suppliers.business_name;
@@ -410,7 +452,17 @@ export class UserRepository {
    * }} options
    * @returns {string} id
    */
-  static createClient ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId }) {
+  static createClient({
+    id,
+    identificationId,
+    identificationNumber,
+    image,
+    createdAt,
+    updatedAt,
+    names,
+    surnames,
+    genderId
+  }) {
     // Puede generar un id, que exista dentro de usuarios pero con un tipo de usuario diferente
     const idExists = Boolean(id);
     if (!idExists) id = crypto.randomUUID();
@@ -420,7 +472,14 @@ export class UserRepository {
     const user = idExists ? Users.findOne({ _id: id }) : undefined;
     const userId = user
       ? user._id
-      : UserRepository._createUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+      : UserRepository._createUser({
+          id,
+          identificationId,
+          identificationNumber,
+          image,
+          createdAt,
+          updatedAt
+        });
 
     const c = {};
     c._id = userId;
@@ -451,17 +510,47 @@ export class UserRepository {
    * }} options
    * @returns {string} id
    */
-  static async createSeller ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode }) {
+  static async createSeller({
+    id,
+    identificationId,
+    identificationNumber,
+    image,
+    createdAt,
+    updatedAt,
+    names,
+    surnames,
+    genderId,
+    roleId,
+    password,
+    taxRegimeCode,
+    economicActivityCode
+  }) {
     // Puede generar un id, que exista dentro de usuarios pero con un tipo de usuario diferente
     const idExists = Boolean(id);
     if (!idExists) id = crypto.randomUUID();
 
-    Validations.seller({ id, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode });
+    Validations.seller({
+      id,
+      names,
+      surnames,
+      genderId,
+      roleId,
+      password,
+      taxRegimeCode,
+      economicActivityCode
+    });
 
     const user = idExists ? Users.findOne({ _id: id }) : undefined;
     const userId = user
       ? user._id
-      : UserRepository._createUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+      : UserRepository._createUser({
+          id,
+          identificationId,
+          identificationNumber,
+          image,
+          createdAt,
+          updatedAt
+        });
 
     const salt = Number(SALT_ROUNDS);
     const encryptedPassword = await bcrypt.hash(password, salt);
@@ -493,7 +582,15 @@ export class UserRepository {
    * }} options
    * @returns {string} id
    */
-  static createSupplier ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, businessName }) {
+  static createSupplier({
+    id,
+    identificationId,
+    identificationNumber,
+    image,
+    createdAt,
+    updatedAt,
+    businessName
+  }) {
     // Puede generar un id, que exista dentro de usuarios pero con un tipo de usuario diferente
     const idExists = Boolean(id);
     if (!idExists) id = crypto.randomUUID();
@@ -503,7 +600,14 @@ export class UserRepository {
     const user = idExists ? Users.findOne({ _id: id }) : undefined;
     const userId = user
       ? user._id
-      : UserRepository._createUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt });
+      : UserRepository._createUser({
+          id,
+          identificationId,
+          identificationNumber,
+          image,
+          createdAt,
+          updatedAt
+        });
 
     const s = {};
     s._id = userId;
@@ -533,8 +637,38 @@ export class UserRepository {
    * }} options
    * @returns {string} id
    */
-  static updateUser ({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode, businessName }) {
-    Validations.update({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode, businessName });
+  static updateUser({
+    id,
+    identificationId,
+    identificationNumber,
+    image,
+    createdAt,
+    updatedAt,
+    names,
+    surnames,
+    genderId,
+    roleId,
+    password,
+    taxRegimeCode,
+    economicActivityCode,
+    businessName
+  }) {
+    Validations.update({
+      id,
+      identificationId,
+      identificationNumber,
+      image,
+      createdAt,
+      updatedAt,
+      names,
+      surnames,
+      genderId,
+      roleId,
+      password,
+      taxRegimeCode,
+      economicActivityCode,
+      businessName
+    });
 
     const user = Users.findOne({ _id: id });
     if (identificationId) user.identification_id = identificationId;
@@ -560,7 +694,8 @@ export class UserRepository {
       if (roleId) seller.role_id = roleId;
       if (password) seller.password = password;
       if (taxRegimeCode) seller.tax_regime_code = taxRegimeCode;
-      if (economicActivityCode) seller.economic_activity_code = economicActivityCode;
+      if (economicActivityCode)
+        seller.economic_activity_code = economicActivityCode;
       seller.save();
     }
     if (userTypes.includes('Proveedor')) {
@@ -577,7 +712,7 @@ export class UserRepository {
    *   id: string;
    * }} options
    */
-  static removeClient ({ id }) {
+  static removeClient({ id }) {
     const client = Clients.findOne({ _id: id });
     client.remove();
   }
@@ -587,16 +722,14 @@ export class UserRepository {
    *   id: string;
    * }} options
    */
-  static removeSeller ({ id }) {
+  static removeSeller({ id }) {
     let hierarchyIds = [];
-    SellerHierarchy.find({ seller_id: id })
-      .forEach(seller => {
-        hierarchyIds.push(seller._id);
-      });
-    SellerHierarchy.find({ top_seller_id: id })
-      .forEach(seller => {
-        hierarchyIds.push(seller._id);
-      });
+    SellerHierarchy.find({ seller_id: id }).forEach((seller) => {
+      hierarchyIds.push(seller._id);
+    });
+    SellerHierarchy.find({ top_seller_id: id }).forEach((seller) => {
+      hierarchyIds.push(seller._id);
+    });
     hierarchyIds = [...new Set(hierarchyIds)];
     for (const id of hierarchyIds) {
       const seller = SellerHierarchy.findOne({ _id: id });
@@ -612,7 +745,7 @@ export class UserRepository {
    *   id: string;
    * }} options
    */
-  static removeSupplier ({ id }) {
+  static removeSupplier({ id }) {
     const supplier = Suppliers.findOne({ _id: id });
     supplier.remove();
   }
@@ -622,7 +755,7 @@ export class UserRepository {
    *   id: string;
    * }} options
    */
-  static removeUser ({ id }) {
+  static removeUser({ id }) {
     const client = Clients.findOne({ _id: id });
     if (client) UserRepository.removeClient({ id });
     const seller = Sellers.findOne({ _id: id });
@@ -630,8 +763,9 @@ export class UserRepository {
     const supplier = Suppliers.findOne({ _id: id });
     if (supplier) UserRepository.removeSupplier({ id });
 
-    const contactIds = ContactsUsers.find({ user_id: id })
-      .map(contact => contact._id);
+    const contactIds = ContactsUsers.find({ user_id: id }).map(
+      (contact) => contact._id
+    );
     for (const id of contactIds) {
       const contact = ContactsUsers.findOne({ _id: id });
       contact.remove();

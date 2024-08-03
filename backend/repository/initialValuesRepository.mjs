@@ -1,7 +1,14 @@
-import { EnumContact, EnumGender, EnumIdentification, EnumPermission, EnumRole, Sequence } from './database.mjs';
+import {
+  EnumContact,
+  EnumGender,
+  EnumIdentification,
+  EnumPermission,
+  EnumRole,
+  Sequence
+} from './database.mjs';
 
 export class initialValuesRepository {
-  static initValues () {
+  static initValues() {
     EnumContact.create({
       _id: 1,
       contact: 'Teléfono'
@@ -132,5 +139,5 @@ export class initialValuesRepository {
   }
 
   // todo
-  static clearDB () {}
+  static clearDB() {}
 }

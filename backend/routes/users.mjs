@@ -58,11 +58,43 @@ router.post('/users/:type', async (req, res) => {
   try {
     let idUser;
     if (type === 'clients') {
-      idUser = UserRepository.createClient({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId });
+      idUser = UserRepository.createClient({
+        id,
+        identificationId,
+        identificationNumber,
+        image,
+        createdAt,
+        updatedAt,
+        names,
+        surnames,
+        genderId
+      });
     } else if (type === 'sellers') {
-      idUser = await UserRepository.createSeller({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode });
+      idUser = await UserRepository.createSeller({
+        id,
+        identificationId,
+        identificationNumber,
+        image,
+        createdAt,
+        updatedAt,
+        names,
+        surnames,
+        genderId,
+        roleId,
+        password,
+        taxRegimeCode,
+        economicActivityCode
+      });
     } else if (type === 'suppliers') {
-      idUser = UserRepository.createSupplier({ id, identificationId, identificationNumber, image, createdAt, updatedAt, businessName });
+      idUser = UserRepository.createSupplier({
+        id,
+        identificationId,
+        identificationNumber,
+        image,
+        createdAt,
+        updatedAt,
+        businessName
+      });
     } else {
       res.status(400).send('Invalid user type');
     }
@@ -93,7 +125,22 @@ router.patch('/users/:id', async (req, res) => {
   } = req.body;
 
   try {
-    UserRepository.updateUser({ id, identificationId, identificationNumber, image, createdAt, updatedAt, names, surnames, genderId, roleId, password, taxRegimeCode, economicActivityCode, businessName });
+    UserRepository.updateUser({
+      id,
+      identificationId,
+      identificationNumber,
+      image,
+      createdAt,
+      updatedAt,
+      names,
+      surnames,
+      genderId,
+      roleId,
+      password,
+      taxRegimeCode,
+      economicActivityCode,
+      businessName
+    });
 
     res.send(UserRepository.getUser({ id }));
   } catch (error) {
