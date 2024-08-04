@@ -180,16 +180,16 @@ export class UserRepository {
    * @param {{
    *   id: string;
    * }} options
-   * @returns {('Cliente' | 'Proveedor' | 'Vendedor')[]} user types
+   * @returns {('client' | 'supplier' | 'seller')[]} user types
    */
   static getUserTypes({ id }) {
     const userTypes = [];
     const client = Clients.findOne({ _id: id });
-    if (client) userTypes.push("Cliente");
+    if (client) userTypes.push("client");
     const seller = Sellers.findOne({ _id: id });
-    if (seller) userTypes.push("Vendedor");
+    if (seller) userTypes.push("seller");
     const supplier = Suppliers.findOne({ _id: id });
-    if (supplier) userTypes.push("Proveedor");
+    if (supplier) userTypes.push("supplier");
 
     return userTypes;
   }
@@ -290,15 +290,10 @@ export class UserRepository {
    * }} options
    * @returns {{
    *   id: string;
-   *   identification: {
-   *     code: string;
-   *     name: string;
-   *     number: string;
-   *   };
    *   name: string;
    *   image?: string;
    *   role?: string;
-   *   userType: ('Cliente' | 'Proveedor' | 'Vendedor')[];
+   *   userType: ('client' | 'supplier' | 'seller')[];
    * }[]} allUsers
    */
   static getAllUsers({ type }) {
@@ -317,29 +312,24 @@ export class UserRepository {
       .map((user) => {
         const u = {};
         u.id = user._id;
-        u.identification = {
-          code: user._tb_identification.code,
-          name: user._tb_identification.identification,
-          number: user.identification_number
-        };
         if (user.image) u.image = user.image;
         u.userType = [];
         if (user._tb_clients) {
           const names = user._tb_clients.names;
           const surnames = user._tb_clients.surnames ?? "";
           u.name = (names + " " + surnames).trim();
-          u.userType.push("Cliente");
+          u.userType.push("client");
         }
         if (user._tb_sellers) {
           const names = user._tb_sellers.names;
           const surnames = user._tb_sellers.surnames ?? "";
           u.name = (names + " " + surnames).trim();
           u.role = user._tb_sellers._tb_role.role;
-          u.userType.push("Vendedor");
+          u.userType.push("seller");
         }
         if (user._tb_suppliers) {
           u.name = user._tb_suppliers.business_name;
-          u.userType.push("Proveedor");
+          u.userType.push("supplier");
         }
 
         return u;
@@ -386,7 +376,7 @@ export class UserRepository {
    *   };
    *   taxRegimeCode?: string;
    *   economicActivityCode?: string;
-   *   userType: ('Cliente' | 'Proveedor' | 'Vendedor')[];
+   *   userType: ('client' | 'supplier' | 'seller')[];
    * } | null} user
    */
   static getUser({ id }) {
@@ -415,13 +405,13 @@ export class UserRepository {
           u.names = user._tb_clients.names;
           u.surnames = user._tb_clients.surnames ?? "";
           u.gender = user._tb_clients._tb_gender.gender;
-          u.userType.push("Cliente");
+          u.userType.push("client");
         }
         if (user._tb_sellers) {
           u.names = user._tb_sellers.names;
           u.surnames = user._tb_sellers.surnames ?? "";
           u.gender = user._tb_sellers._tb_gender.gender;
-          u.userType.push("Vendedor");
+          u.userType.push("seller");
           u.seller = {};
           u.seller.role = user._tb_sellers._tb_role.role;
           u.seller.topOf = user._tb_sellers._tb_hierarchy._seller.map(
@@ -438,7 +428,7 @@ export class UserRepository {
         }
         if (user._tb_suppliers) {
           u.businessName = user._tb_suppliers.business_name;
-          u.userType.push("Proveedor");
+          u.userType.push("supplier");
         }
 
         return u;
@@ -687,14 +677,14 @@ export class UserRepository {
     user.save();
 
     const userTypes = this.getUserTypes({ id });
-    if (userTypes.includes("Cliente")) {
+    if (userTypes.includes("client")) {
       const client = Clients.findOne({ _id: id });
       if (names) client.names = names;
       if (surnames) client.surnames = surnames;
       if (genderId) client.gender_id = genderId;
       client.save();
     }
-    if (userTypes.includes("Vendedor")) {
+    if (userTypes.includes("seller")) {
       const seller = Sellers.findOne({ _id: id });
       if (names) seller.names = names;
       if (surnames) seller.surnames = surnames;
@@ -706,7 +696,7 @@ export class UserRepository {
         seller.economic_activity_code = economicActivityCode;
       seller.save();
     }
-    if (userTypes.includes("Proveedor")) {
+    if (userTypes.includes("supplier")) {
       const supplier = Suppliers.findOne({ _id: id });
       if (businessName) supplier.business_name = businessName;
       supplier.save();

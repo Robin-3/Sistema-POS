@@ -1,0 +1,131 @@
+---
+import MainLayout from "@/layouts/MainLayout.astro";
+import UserTableRow from "@/components/UserTableRow.astro";
+
+type ValidType = "clients" | "suppliers" | "sellers";
+
+const validTypes: ValidType[] = ["clients", "sellers", "suppliers"];
+const { type } = Astro.params as { type?: ValidType };
+if (!validTypes.includes(type!) && type !== undefined)
+  return Astro.redirect("/users");
+
+const URL =
+  type && validTypes.includes(type)
+    ? `${import.meta.env.URL_API_USERS}/${type}`
+    : import.meta.env.URL_API_USERS;
+
+const { user } = Astro.locals;
+const { id } = user;
+
+const userTypeColor = (type: "client" | "supplier" | "seller") => {
+  if (type === "client") return "bg-blue-600";
+  if (type === "supplier") return "bg-yellow-300";
+  if (type === "seller") return "bg-green-500";
+};
+
+const response = await fetch(URL);
+const data = (await response.json()) as {
+  id: string;
+  name: string;
+  image?: string;
+  role?: string;
+  userType: ("client" | "supplier" | "seller")[];
+}[];
+
+const typesEs = {
+  clients: "Clientes",
+  sellers: "Vendedores",
+  suppliers: "Proveedores"
+};
+
+const typeEs = {
+  client: "Cliente",
+  seller: "Vendedor",
+  supplier: "Proveedor"
+};
+
+const users = data
+  .filter((user) => user.id !== id)
+  .map((user) => {
+    const { name, image, userType } = user;
+    const types = userType.map((type) => ({
+      type: typeEs[type] as "Cliente" | "Proveedor" | "Vendedor",
+      color: userTypeColor(type)!
+    }));
+
+    return {
+      ...user,
+      image:
+        image ??
+        `https://ui-avatars.com/api/?name=${name.replaceAll(" ", "+")}`,
+      userType: types
+    };
+  });
+
+const title = type ? `${typesEs[type]} - Usuarios` : "Usuarios";
+
+const isActiveTab = (tabType?: ValidType) =>
+  type === tabType || (!type && tabType === undefined);
+---
+
+<MainLayout title={title}>
+  <div
+    class="border-b border-gray-200 bg-gray-50 dark:bg-gray-800 dark:border-gray-700 mb-4 rounded-t-lg"
+  >
+    <ul
+      class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400"
+    >
+      <li class="me-2">
+        <a
+          href="/users"
+          class={`inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg group 
+            ${
+              isActiveTab(undefined)
+                ? "text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 active"
+                : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+            }`}
+          aria-current={isActiveTab(undefined) ? "page" : undefined}
+        >
+          Todos
+        </a>
+      </li>
+      {
+        validTypes.map((tabType) => (
+          <li class="me-2">
+            <a
+              href={`/users/${tabType}`}
+              class={`inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg group 
+              ${
+                isActiveTab(tabType)
+                  ? "text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 active"
+                  : "border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+              }`}
+              aria-current={isActiveTab(tabType) ? "page" : undefined}
+            >
+              {typesEs[tabType]}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table
+      class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+    >
+      <thead
+        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-6 py-3">Nombre</th>
+          <th scope="col" class="px-6 py-3">Tipo de usuario</th>
+          <th scope="col" class="px-6 py-3">Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        {users.map((user) => <UserTableRow user={user} />)}
+      </tbody>
+    </table>
+  </div>
+</MainLayout>

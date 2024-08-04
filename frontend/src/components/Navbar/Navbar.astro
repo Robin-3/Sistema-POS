@@ -1,9 +1,10 @@
 ---
-import MenuSidebar from "@/components/MenuSidebar.astro";
-import ThemeToggle from "./ThemeToggle";
+import { Image } from "astro:assets";
+import MenuSidebar from "@/components/Navbar/MenuSidebar.astro";
+import ThemeToggle from "@/components/ThemeToggle";
 import LogoutButton from "@/components/LogoutButton";
 import { HandCoins, Menu } from "lucide";
-import LucideIcon from "./LucideIcon.astro";
+import LucideIcon from "@/components/LucideIcon.astro";
 
 const URL = import.meta.env.URL_API_LOGOUT;
 const DEV = import.meta.env.DEV;
@@ -51,10 +52,11 @@ const imgUrl =
               data-dropdown-toggle="dropdown-user"
             >
               <span class="sr-only">Abrir menú de usuario</span>
-              <img
+              <Image
                 class="w-8 h-8 rounded-full"
                 src={imgUrl}
                 alt={`Imagen de ${name}`}
+                inferSize={true}
               />
             </button>
           </div>

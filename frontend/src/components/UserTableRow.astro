@@ -1,0 +1,65 @@
+---
+import { Image } from "astro:assets";
+
+interface Props {
+  user: {
+    id: string;
+    name: string;
+    image: string;
+    role?: string;
+    userType: {
+      type: "Cliente" | "Proveedor" | "Vendedor";
+      color: string;
+    }[];
+  };
+}
+
+const { user } = Astro.props;
+const { id, image, name, role, userType } = user;
+---
+
+<tr
+  class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+>
+  <th
+    scope="row"
+    class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
+  >
+    <Image
+      class="w-10 h-10 rounded-full"
+      src={image}
+      alt={`Imagen de ${name}`}
+      inferSize={true}
+    />
+    <div class="ps-3">
+      <div class="text-base font-semibold">{name}</div>
+      <div class="font-normal text-gray-500">{role}</div>
+    </div>
+  </th>
+  <td class="px-6 py-4">
+    {
+      userType.map((type) => (
+        <div class="flex items-center">
+          <div class={`h-2.5 w-2.5 rounded-full ${type.color} me-2`} />
+          {type.type}
+        </div>
+      ))
+    }
+  </td>
+  <td class="px-6 py-4">
+    <div class="flex flex-col justify-center">
+      <a
+        href={`/user/${id}`}
+        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+      >
+        Editar
+      </a>
+      <a
+        href="#"
+        class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+      >
+        Eliminar
+      </a>
+    </div>
+  </td>
+</tr>
