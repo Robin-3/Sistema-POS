@@ -1,6 +1,6 @@
 import DBLocal from "db-local";
 
-const { Schema } = new DBLocal({ path: "./db" });
+const { Schema } = new DBLocal({ path: "./database" });
 
 /// -- ENUMS -- ///
 export const EnumContact = Schema("enum_contact", {
