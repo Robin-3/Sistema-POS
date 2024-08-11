@@ -1,5 +1,5 @@
 import express from "express";
-import { UserRepository } from "../repository/UserRepository.mjs";
+import { userRepository } from "../repository/userRepository.mjs";
 import { ENV } from "../config.mjs";
 
 const router = express.Router();
@@ -8,7 +8,7 @@ router.get("/users/:id", (req, res, next) => {
   const id = req.params.id;
 
   try {
-    const user = UserRepository.getUser({ id });
+    const user = userRepository.getUser({ id });
     if (user) {
       res.send(user);
     } else {
@@ -25,7 +25,7 @@ router.get("/users/:type?", (req, res) => {
 
   try {
     if (!type || ["clients", "sellers", "suppliers"].includes(type)) {
-      const users = UserRepository.getAllUsers({ type });
+      const users = userRepository.getAllUsers({ type });
       res.send(users);
     } else {
       res.status(400).send("Invalid user type");
@@ -58,7 +58,7 @@ router.post("/users/:type", async (req, res) => {
   try {
     let idUser;
     if (type === "clients") {
-      idUser = UserRepository.createClient({
+      idUser = userRepository.createClient({
         id,
         identificationId,
         identificationNumber,
@@ -70,7 +70,7 @@ router.post("/users/:type", async (req, res) => {
         genderId
       });
     } else if (type === "sellers") {
-      idUser = await UserRepository.createSeller({
+      idUser = await userRepository.createSeller({
         id,
         identificationId,
         identificationNumber,
@@ -86,7 +86,7 @@ router.post("/users/:type", async (req, res) => {
         economicActivityCode
       });
     } else if (type === "suppliers") {
-      idUser = UserRepository.createSupplier({
+      idUser = userRepository.createSupplier({
         id,
         identificationId,
         identificationNumber,
@@ -99,7 +99,7 @@ router.post("/users/:type", async (req, res) => {
       res.status(400).send("Invalid user type");
     }
 
-    res.send(UserRepository.getUser({ id: idUser }));
+    res.send(userRepository.getUser({ id: idUser }));
   } catch (error) {
     if (ENV === "development") console.error(error);
     res.status(500).send("Error creating user");
@@ -125,7 +125,7 @@ router.patch("/users/:id", async (req, res) => {
   } = req.body;
 
   try {
-    UserRepository.updateUser({
+    userRepository.updateUser({
       id,
       identificationId,
       identificationNumber,
@@ -142,7 +142,7 @@ router.patch("/users/:id", async (req, res) => {
       businessName
     });
 
-    res.send(UserRepository.getUser({ id }));
+    res.send(userRepository.getUser({ id }));
   } catch (error) {
     if (ENV === "development") console.error(error);
     res.status(500).send("Error updating user");
@@ -153,7 +153,7 @@ router.delete("/users/:id", (req, res) => {
   const id = req.params.id;
 
   try {
-    UserRepository.removeUser({ id });
+    userRepository.removeUser({ id });
     res.status(204).send();
   } catch (error) {
     if (ENV === "development") console.error(error);
@@ -166,16 +166,16 @@ router.delete("/users/:type/:id", (req, res) => {
 
   try {
     if (type === "clients") {
-      UserRepository.removeClient({ id });
+      userRepository.removeClient({ id });
     } else if (type === "sellers") {
-      UserRepository.removeSeller({ id });
+      userRepository.removeSeller({ id });
     } else if (type === "suppliers") {
-      UserRepository.removeSupplier({ id });
+      userRepository.removeSupplier({ id });
     } else {
       res.status(400).send("Invalid user type");
     }
-    const userTypes = UserRepository.getUserTypes({ id });
-    if (userTypes.length === 0) UserRepository.removeUser({ id });
+    const userTypes = userRepository.getUserTypes({ id });
+    if (userTypes.length === 0) userRepository.removeUser({ id });
 
     res.status(204).send();
   } catch (error) {

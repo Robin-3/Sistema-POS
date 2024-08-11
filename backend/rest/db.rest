@@ -1,0 +1,22 @@
+@hostname = localhost
+@port = 8080
+@host = {{hostname}}:{{port}}
+
+### LISTAS
+
+###
+DELETE http://{{host}}/api/db/list/ HTTP/1.1
+
+###
+POST http://{{host}}/api/db/list/default-data HTTP/1.1
+
+###
+POST http://{{host}}/api/db/users/test HTTP/1.1
+content-type: application/json
+
+{
+  "count": 10
+}
+
+###
+GET http://{{host}}/api/db/list/identifications HTTP/1.1

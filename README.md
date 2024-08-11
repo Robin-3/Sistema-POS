@@ -4,10 +4,9 @@
 
 ```textplain
 / - Panel de adminsitración
-├── login/ - Formulario de inicio de sesión
+├── login/ - Formulario de inicio de sesión (Vendedor)
 ├── user/
-│   ├── profile/ - Vista del perfil actual
-│   └── [id]/    - Vista de un usuario
+│   └── profile/ - Vista del perfil actual
 └── users/ - Lista de todos los usuarios
     └── [type]/ - Lista de usuarios por tipo
 
@@ -16,34 +15,70 @@ type: clients, sellers, suppliers
 
 ## Backend
 
-```textplain
-api/
-├── db/
-│   └── POST initial-values/ - Carga valores iniciales en la base de datos (enums)
-├── POST login/  - Inicia sesión (Vendedor)
-├── POST logout/ - Cierra sesión
-└── GET  users/  - Lista todos los usuarios
-    ├── GET    :id/      - Obtiene la información general del usuario
-    ├── GET    :type/    - Lista todos los usuarios de un tipo
-    ├── POST   :type/    - Crea un nuevo usuario del tipo mencionado
-    ├── PATCH  :id/      - Actualiza la información del usuario
-    ├── DELETE :id/      - Elimina a un usuario y todos sus tipos
-    └── DELETE :type/:id - Elimina la información de un tipo de usuario
-
-type: clients, sellers, suppliers
+```swiftmark
+api/ [
+  db/ -DEV- [
+    DELETE `Elimina toda la base de datos`
+    list/ [
+      DELETE `Elimina las tablas de listas`
+      default-data/ [
+        POST `Carga valores mínimos en las tablas de listas`
+      ]
+    ]
+    users/ [
+      DELETE `Elimina las tablas de tipos de usuarios y usuarios`
+      test/ [
+        POST `Crea usuarios de prueba`
+      ]
+    ]
+  ]
+  session/ [
+    login/ [
+      POST `Inicia sesión (Vendedor)`
+      local-storage/ -DEV- [
+        POST `Reenvia la cookie si está en el loscalStorage`
+      ]
+    ]
+    logout/ [
+      POST `Cierra sesión`
+    ]
+  ]
+  list/ [
+    identifications/ [
+      GET `Trae el listado de tipos de identificación`
+    ]
+  ]
+  users/ [
+    GET `Lista todos los usuarios`
+    :id/ [
+      -id~uuid-
+      GET    `Obtiene la información general del usuario`
+      PATCH  `Actualiza la información del usuario`
+      DELETE `Elimina un usuario y todos sus tipos`
+    ]
+    :type/ [
+      `clients`sellers`suppliers`
+      GET  `Lista todos los usuarios de un tipo`
+      POST `Crea un usuario del tipo mencionado`
+      :id/ [
+        DELETE `Elimina la información de un usuario en un tipo concreto`
+      ]
+    ]
+  ]
+]
 ```
 
 ## Database
 
 ```mermaid
 erDiagram
-    ENUM_CONTACT ||--o{ CONTACTS_USERS : contains
-    ENUM_GENDER ||--o{ CLIENTS : identified_by
-    ENUM_GENDER ||--o{ SELLERS : identified_by
-    ENUM_IDENTIFICATION ||--o{ USERS : identified_by
-    ENUM_PERMISSION ||--o{ PERMISSIONS_ROLES : has
-    ENUM_ROLE ||--o{ SELLERS : assigned
-    ENUM_ROLE ||--o{ PERMISSIONS_ROLES : has
+    LIST_CONTACT ||--o{ CONTACTS_USERS : contains
+    LIST_GENDER ||--o{ CLIENTS : identified_by
+    LIST_GENDER ||--o{ SELLERS : identified_by
+    LIST_IDENTIFICATION ||--o{ USERS : identified_by
+    LIST_PERMISSION ||--o{ PERMISSIONS_ROLES : has
+    LIST_ROLE ||--o{ SELLERS : assigned
+    LIST_ROLE ||--o{ PERMISSIONS_ROLES : has
 
     USERS ||--o{ CLIENTS : is
     USERS ||--o{ SUPPLIERS : is

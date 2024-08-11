@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import { ENV, TOKEN, TOKEN_KEY } from "../config.mjs";
-import { UserRepository } from "../repository/UserRepository.mjs";
+import { userRepository } from "../repository/userRepository.mjs";
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.post("/login", async (req, res) => {
   } = req.body;
 
   try {
-    const seller = await UserRepository.loginSeller({
+    const seller = await userRepository.loginSeller({
       identificationTypeId: Number(identificationType),
       identificationNumber,
       password

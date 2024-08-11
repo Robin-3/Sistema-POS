@@ -1,15 +1,20 @@
 import { z } from "zod";
 import {
   Clients,
-  EnumGender,
-  EnumIdentification,
-  EnumRole,
+  ListGender,
+  ListIdentification,
+  ListRole,
   Sellers,
   Suppliers,
   Users
 } from "./database.mjs";
 
-export class Validations {
+export class validations {
+  /**
+   * Valida un UUID.
+   * @param {string} id - El UUID a validar.
+   * @throws {z.ZodError} - Si el UUID no es válido.
+   */
   static id(id) {
     const idSchema = z
       .string()
@@ -17,18 +22,28 @@ export class Validations {
     idSchema.parse(id);
   }
 
+  /**
+   * Valida un ID de identificación.
+   * @param {number} identificationId - El ID de identificación a validar.
+   * @throws {z.ZodError|Error} - Si el ID no es válido o no existe.
+   */
   static identificationId(identificationId) {
     const identificationSchema = z
       .number()
       .int({ message: "The identification ID must be an integer" });
     identificationSchema.parse(identificationId);
 
-    const identification = EnumIdentification.findOne({
+    const identification = ListIdentification.findOne({
       _id: identificationId
     });
     if (!identification) throw new Error("Identification does not exist");
   }
 
+  /**
+   * Valida un número de identificación.
+   * @param {string} identificationNumber - El número de identificación a validar.
+   * @throws {z.ZodError} - Si el número no es válido.
+   */
   static identificationNumber(identificationNumber) {
     const numberSchema = z.string().min(3, {
       message: "The identification number must be more than 3 characters"
@@ -36,14 +51,25 @@ export class Validations {
     numberSchema.parse(identificationNumber);
   }
 
+  /**
+   * Valida una imagen.
+   * @param {string|undefined} image - La imagen a validar.
+   * @throws {z.ZodError} - Si la imagen no es válida.
+   */
   static image(image) {
     const imageSchema = z
       .string()
+      // todo eliminar url
       .url({ message: "The image must have a valid URL syntax" })
       .optional();
     imageSchema.parse(image);
   }
 
+  /**
+   * Valida un timestamp.
+   * @param {number} timestamp - El timestamp a validar.
+   * @throws {z.ZodError} - Si el timestamp no es válido.
+   */
   static timestamp(timestamp) {
     const timestampSchema = z
       .number({ message: "The timestamp must be a number" })
@@ -53,14 +79,15 @@ export class Validations {
   }
 
   /**
-   * @param {{
-   *   id: string;
-   *   identificationId: number;
-   *   identificationNumber: string;
-   *   image?: string;
-   *   createdAt: number;
-   *   updatedAt: number;
-   * }} options
+   * Valida un usuario.
+   * @param {Object} options - Los datos del usuario a validar.
+   * @param {string} options.id - El ID del usuario.
+   * @param {number} options.identificationId - El ID de identificación del usuario.
+   * @param {string} options.identificationNumber - El número de identificación del usuario.
+   * @param {string} [options.image] - La imagen del usuario.
+   * @param {number} options.createdAt - La fecha de creación del usuario.
+   * @param {number} options.updatedAt - La fecha de actualización del usuario.
+   * @throws {Error} - Si algún dato no es válido o ya existe.
    */
   static user({
     id,
@@ -70,24 +97,33 @@ export class Validations {
     createdAt,
     updatedAt
   }) {
-    Validations.id(id);
+    // Validar el ID del usuario
+    validations.id(id);
     const user = Users.findOne({ _id: id });
     if (user) throw new Error("The user already exists");
 
-    Validations.identificationId(identificationId);
-    Validations.identificationNumber(identificationNumber);
+    // Validar el ID y número de identificación
+    validations.identificationId(identificationId);
+    validations.identificationNumber(identificationNumber);
     const identification = Users.findOne({
       identification_id: identificationId,
       identification_number: identificationNumber
     });
     if (identification) throw new Error("The identification already exists");
 
-    Validations.image(image);
+    // Validar la imagen
+    validations.image(image);
 
-    Validations.timestamp(createdAt);
-    Validations.timestamp(updatedAt);
+    // Validar timestamps
+    validations.timestamp(createdAt);
+    validations.timestamp(updatedAt);
   }
 
+  /**
+   * Valida los nombres.
+   * @param {string} names - El nombre a validar.
+   * @throws {z.ZodError} - Si el nombre no es válido.
+   */
   static names(names) {
     const namesSchema = z
       .string()
@@ -95,6 +131,11 @@ export class Validations {
     namesSchema.parse(names);
   }
 
+  /**
+   * Valida los apellidos.
+   * @param {string|undefined} surnames - El apellido a validar.
+   * @throws {z.ZodError} - Si el apellido no es válido.
+   */
   static surnames(surnames) {
     const surnamesSchema = z
       .string()
@@ -103,34 +144,42 @@ export class Validations {
     surnamesSchema.parse(surnames);
   }
 
+  /**
+   * Valida un ID de género.
+   * @param {number} genderId - El ID de género a validar.
+   * @throws {z.ZodError|Error} - Si el ID no es válido o no existe.
+   */
   static genderId(genderId) {
     const genderSchema = z
       .number()
       .int({ message: "The gender ID must be an integer" });
     genderSchema.parse(genderId);
 
-    const gender = EnumGender.findOne({ _id: genderId });
+    const gender = ListGender.findOne({ _id: genderId });
     if (!gender) throw new Error("Gender does not exist");
   }
 
   /**
-   * @param {{
-   *   id: string;
-   *   names: string;
-   *   surnames?: string;
-   *   genderId: number;
-   * }} options
-   * @returns {string} id
+   * Valida un cliente.
+   * @param {Object} options - Los datos del cliente a validar.
+   * @param {string} options.id - El ID del cliente.
+   * @param {string} options.names - Los nombres del cliente.
+   * @param {string} [options.surnames] - Los apellidos del cliente.
+   * @param {number} options.genderId - El ID de género del cliente.
+   * @throws {Error} - Si algún dato no es válido o el cliente ya existe.
    */
   static client({ id, names, surnames, genderId }) {
-    Validations.id(id);
+    // Validar el ID del cliente
+    validations.id(id);
     const client = Clients.findOne({ _id: id });
     if (client) throw new Error("The client already exists");
 
-    Validations.names(names);
-    Validations.surnames(surnames);
+    // Validar nombres y apellidos
+    validations.names(names);
+    validations.surnames(surnames);
 
-    Validations.genderId(genderId);
+    // Validar el ID de género
+    validations.genderId(genderId);
   }
 
   static roleId(roleId) {
@@ -139,7 +188,7 @@ export class Validations {
       .int({ message: "The role ID must be an integer" });
     roleSchema.parse(roleId);
 
-    const role = EnumRole.findOne({ _id: roleId });
+    const role = ListRole.findOne({ _id: roleId });
     if (!role) throw new Error("Role does not exist");
   }
 
@@ -155,9 +204,9 @@ export class Validations {
         message: "The password must contain at least one uppercase letter"
       })
       .regex(/\d/, { message: "The password must contain at least one number" })
-      .regex(/[@$!%*?&]/, {
+      .regex(/[!"#$%&'()*+,-./:;<=>?@[\\\]^_`{|}~]/, {
         message:
-          "The password must contain at least one special character (@, $, !, %, *, ?, &)"
+          "The password must contain at least one special character from the set: !\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
       });
     passwordSchema.parse(password);
   }
@@ -205,20 +254,20 @@ export class Validations {
     taxRegimeCode,
     economicActivityCode
   }) {
-    Validations.id(id);
+    validations.id(id);
     const seller = Sellers.findOne({ _id: id });
     if (seller) throw new Error("The seller already exists");
 
-    Validations.names(names);
-    Validations.surnames(surnames);
+    validations.names(names);
+    validations.surnames(surnames);
 
-    Validations.genderId(genderId);
-    Validations.roleId(roleId);
+    validations.genderId(genderId);
+    validations.roleId(roleId);
 
-    Validations.password(password);
+    validations.password(password);
 
-    Validations.taxRegimeCode(taxRegimeCode);
-    Validations.economicActivityCode(economicActivityCode);
+    validations.taxRegimeCode(taxRegimeCode);
+    validations.economicActivityCode(economicActivityCode);
   }
 
   static businessName(businessName) {
@@ -236,11 +285,11 @@ export class Validations {
    * @returns {string} id
    */
   static supplier({ id, businessName }) {
-    Validations.id(id);
+    validations.id(id);
     const supplier = Suppliers.findOne({ _id: id });
     if (supplier) throw new Error("The supplier already exists");
 
-    Validations.businessName(businessName);
+    validations.businessName(businessName);
   }
 
   /**
@@ -280,10 +329,10 @@ export class Validations {
   }) {
     const user = Users.findOne({ _id: id });
 
-    if (identificationId) Validations.identificationId(identificationId);
+    if (identificationId) validations.identificationId(identificationId);
     else identificationId = user.identification_id;
     if (identificationNumber)
-      Validations.identificationNumber(identificationNumber);
+      validations.identificationNumber(identificationNumber);
     else identificationNumber = user.identification_number;
     const identification = Users.findOne({
       identification_id: identificationId,
@@ -292,22 +341,22 @@ export class Validations {
     if (identification && identification._id !== id)
       throw new Error("The identification already exists");
 
-    Validations.image(image);
+    validations.image(image);
 
-    if (createdAt) Validations.timestamp(createdAt);
-    if (updatedAt) Validations.timestamp(updatedAt);
+    if (createdAt) validations.timestamp(createdAt);
+    if (updatedAt) validations.timestamp(updatedAt);
 
-    if (names) Validations.names(names);
-    Validations.surnames(surnames);
+    if (names) validations.names(names);
+    validations.surnames(surnames);
 
-    if (genderId) Validations.genderId(genderId);
-    if (roleId) Validations.roleId();
+    if (genderId) validations.genderId(genderId);
+    if (roleId) validations.roleId();
 
-    if (password) Validations.password(password);
+    if (password) validations.password(password);
 
-    Validations.taxRegimeCode(taxRegimeCode);
-    Validations.economicActivityCode(economicActivityCode);
+    validations.taxRegimeCode(taxRegimeCode);
+    validations.economicActivityCode(economicActivityCode);
 
-    if (businessName) Validations.businessName(businessName);
+    if (businessName) validations.businessName(businessName);
   }
 }

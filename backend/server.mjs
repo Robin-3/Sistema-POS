@@ -10,7 +10,7 @@ import dbRouter from "./routes/db.mjs";
 import configDBRouter from "./routes/configDB.mjs";
 import { handler as astroHandler } from "../frontend/dist/server/entry.mjs";
 import { createProxyMiddleware } from "http-proxy-middleware";
-import { PORT, ENV, PATH, ACCEPTED_ORIGINS } from "./config.mjs";
+import { PORT, ENV, FRONTEND_PATH, ACCEPTED_ORIGINS } from "./config.mjs";
 
 const app = express();
 const upload = multer();
@@ -42,7 +42,7 @@ if (ENV === "development") {
     })
   );
 } else {
-  app.use(express.static(PATH));
+  app.use(express.static(FRONTEND_PATH));
   app.use(astroHandler);
 }
 

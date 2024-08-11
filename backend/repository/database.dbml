@@ -2,25 +2,25 @@ Project sistema_pos {
   database_type: "SQLite"
 }
 
-/// -- ENUMS -- ///
-Table enum_contact {
+/// -- LISTS -- ///
+Table list_contact {
   _id integer [pk, increment]
   contact text [not null, unique]
 }
-Table enum_gender {
+Table list_gender {
   _id integer [pk, increment]
   gender text [not null, unique]
 }
-Table enum_identification {
+Table list_identification {
   _id integer [pk, increment]
   code text [not null, unique]
   identificacion text [not null]
 }
-Table enum_permission {
+Table list_permission {
   _id integer [pk, increment]
   permission text [not null, unique]
 }
-Table enum_role {
+Table list_role {
   _id integer [pk, increment]
   role text [not null, unique]
 }
@@ -29,7 +29,7 @@ Table enum_role {
 // -- Usuarios
 Table users {
   _id text [pk, increment, note: "uuid"]
-  identification_id integer [not null, ref: > enum_identification._id]
+  identification_id integer [not null, ref: > list_identification._id]
   identification_number text [not null]
   image text
   created_at int [not null, note: "unix time", default: "now"]
@@ -42,14 +42,14 @@ Table clients {
   _id text [pk, ref: - users._id, note: "uuid"]
   names text [not null]
   surnames text
-  gender_id integer [not null, ref: > enum_gender._id]
+  gender_id integer [not null, ref: > list_gender._id]
 }
 Table sellers {
   _id text [pk, ref: - users._id, note: "uuid"]
   names text [not null]
   surnames text
-  gender_id integer [not null, ref: > enum_gender._id]
-  role_id integer [not null, ref: > enum_role._id]
+  gender_id integer [not null, ref: > list_gender._id]
+  role_id integer [not null, ref: > list_role._id]
   password text [not null, note: "bcrypt"]
   tax_regime_code text
   economic_activity_code text
@@ -62,7 +62,7 @@ Table suppliers {
 /// -- TABLAS M*M -- ///
 Table contacts_users {
   _id integer [pk, increment]
-  contact_id integer [not null, ref: > enum_contact._id]
+  contact_id integer [not null, ref: > list_contact._id]
   user_id text [not null, ref: > users._id]
   contact string [not null]
   indexes {
@@ -71,8 +71,8 @@ Table contacts_users {
 }
 Table permissions_roles {
   _id integer [pk, increment]
-  permission_id integer [not null, ref: > enum_permission._id]
-  role_id integer [not null, ref: > enum_role._id]
+  permission_id integer [not null, ref: > list_permission._id]
+  role_id integer [not null, ref: > list_role._id]
   indexes {
     (permission_id, role_id) [unique]
   }

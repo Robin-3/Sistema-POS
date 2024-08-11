@@ -2,29 +2,29 @@ import DBLocal from "db-local";
 
 const { Schema } = new DBLocal({ path: "./database" });
 
-/// -- ENUMS -- ///
-export const EnumContact = Schema("enum_contact", {
+/// -- LISTS -- ///
+export const ListContact = Schema("list_contact", {
   _id: { type: Number, required: true },
   contact: { type: String, required: true }
 });
 
-export const EnumGender = Schema("enum_gender", {
+export const ListGender = Schema("list_gender", {
   _id: { type: Number, required: true },
   gender: { type: String, required: true }
 });
 
-export const EnumIdentification = Schema("enum_identification", {
+export const ListIdentification = Schema("list_identification", {
   _id: { type: Number, required: true },
   code: { type: String, required: true },
   identification: { type: String, required: true }
 });
 
-export const EnumPermission = Schema("enum_permission", {
+export const ListPermission = Schema("list_permission", {
   _id: { type: Number, required: true },
   permission: { type: String, required: true }
 });
 
-export const EnumRole = Schema("enum_role", {
+export const ListRole = Schema("list_role", {
   _id: { type: Number, required: true },
   role: { type: String, required: true }
 });
@@ -85,7 +85,6 @@ export const SellerHierarchy = Schema("seller_hierarchy", {
 
 // -- SISTEMA (SQLite) -- //
 export const Sequence = Schema("sequence", {
-  _id: { type: Number, required: true },
   table: { type: String, required: true },
   sequence: { type: Number, required: true }
 });

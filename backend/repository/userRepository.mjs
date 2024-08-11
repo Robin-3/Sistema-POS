@@ -1,21 +1,10 @@
 import crypto from "node:crypto";
 import bcrypt from "bcrypt";
 import { SALT_ROUNDS } from "../config.mjs";
-import { Validations } from "./Validations.mjs";
-import {
-  Users,
-  Sellers,
-  EnumIdentification,
-  EnumRole,
-  Clients,
-  Suppliers,
-  EnumGender,
-  SellerHierarchy,
-  ContactsUsers,
-  EnumContact
-} from "./database.mjs";
+import { dbRepository } from "./dbRepository.mjs";
+import { validations } from "./validations.mjs";
 
-export class UserRepository {
+export class userRepository {
   /**
    * @param {{
    *   identificationTypeId: number;
@@ -35,22 +24,31 @@ export class UserRepository {
     identificationNumber,
     password
   }) {
-    Validations.identificationNumber(identificationNumber);
-    Validations.password(password);
+    validations.identificationNumber(identificationNumber);
+    validations.password(password);
 
-    const user = Users.findOne({
-      identification_id: identificationTypeId,
-      identification_number: identificationNumber
+    const user = dbRepository.findOneTableData({
+      tableName: "users",
+      filter: {
+        identification_id: identificationTypeId,
+        identification_number: identificationNumber
+      }
     });
     if (!user) throw new Error("User does not exist");
 
-    const seller = Sellers.findOne({ _id: user._id });
+    const seller = dbRepository.findOneTableData({
+      tableName: "sellers",
+      filter: { _id: user._id }
+    });
     if (!seller) throw new Error("Seller does not exist");
 
     const isValid = await bcrypt.compare(password, seller.password);
     if (!isValid) throw new Error("Password is incorrect");
 
-    const role = EnumRole.findOne({ _id: seller.role_id });
+    const role = dbRepository.findOneTableData({
+      tableName: "list_role",
+      filter: { _id: seller.role_id }
+    });
 
     const s = {};
     s.id = seller._id;
@@ -132,46 +130,72 @@ export class UserRepository {
    * }[]} allUsers
    */
   static _allUsers() {
-    const users = Users.find().map((user) => {
-      user._tb_contacts = ContactsUsers.find({ user_id: user._id }).map(
-        (contact) => {
-          contact._tb_contact = EnumContact.findOne({
-            _id: contact.contact_id
+    const users = dbRepository
+      .getTableData({ tableName: "users" })
+      .map((user) => {
+        user._tb_contacts = dbRepository
+          .findTableData({
+            tableName: "contacts_users",
+            filter: { user_id: user._id }
+          })
+          .map((contact) => {
+            contact._tb_contact = dbRepository.findOneTableData({
+              tableName: "list_contact",
+              filter: { _id: contact.contact_id }
+            });
+            return contact;
           });
-          return contact;
+        user._tb_identification = dbRepository.findOneTableData({
+          tableName: "list_identification",
+          filter: { _id: user.identification_id }
+        });
+        const client = dbRepository.findOneTableData({
+          tableName: "clients",
+          filter: { _id: user._id }
+        });
+        if (client) {
+          client._tb_gender = dbRepository.findOneTableData({
+            tableName: "list_gender",
+            filter: { _id: client.gender_id }
+          });
+          user._tb_clients = client;
         }
-      );
-      user._tb_identification = EnumIdentification.findOne({
-        _id: user.identification_id
+
+        const seller = dbRepository.findOneTableData({
+          tableName: "sellers",
+          filter: { _id: user._id }
+        });
+        if (seller) {
+          seller._tb_gender = dbRepository.findOneTableData({
+            tableName: "list_gender",
+            filter: { _id: seller.gender_id }
+          });
+          seller._tb_hierarchy = {};
+          seller._tb_hierarchy._seller = dbRepository.findTableData({
+            tableName: "seller_hierarchy",
+            filter: { seller_id: seller._id }
+          });
+          seller._tb_hierarchy._top_seller = dbRepository.findTableData({
+            tableName: "seller_hierarchy",
+            filter: { top_seller_id: seller._id }
+          });
+          seller._tb_role = dbRepository.findOneTableData({
+            tableName: "list_role",
+            filter: { _id: seller.role_id }
+          });
+          user._tb_sellers = seller;
+        }
+
+        const supplier = dbRepository.findOneTableData({
+          tableName: "suppliers",
+          filter: { _id: user._id }
+        });
+        if (supplier) {
+          user._tb_suppliers = supplier;
+        }
+
+        return user;
       });
-
-      const client = Clients.findOne({ _id: user._id });
-      if (client) {
-        client._tb_gender = EnumGender.findOne({ _id: client.gender_id });
-        user._tb_clients = client;
-      }
-
-      const seller = Sellers.findOne({ _id: user._id });
-      if (seller) {
-        seller._tb_gender = EnumGender.findOne({ _id: seller.gender_id });
-        seller._tb_hierarchy = {};
-        seller._tb_hierarchy._seller = SellerHierarchy.find({
-          seller_id: seller._id
-        });
-        seller._tb_hierarchy._top_seller = SellerHierarchy.find({
-          top_seller_id: seller._id
-        });
-        seller._tb_role = EnumRole.findOne({ _id: seller.role_id });
-        user._tb_sellers = seller;
-      }
-
-      const supplier = Suppliers.findOne({ _id: user._id });
-      if (supplier) {
-        user._tb_suppliers = supplier;
-      }
-
-      return user;
-    });
 
     return users;
   }
@@ -184,11 +208,21 @@ export class UserRepository {
    */
   static getUserTypes({ id }) {
     const userTypes = [];
-    const client = Clients.findOne({ _id: id });
+    const client = dbRepository.findOneTableData({
+      tableName: "clients",
+      filter: { _id: id }
+    });
     if (client) userTypes.push("client");
-    const seller = Sellers.findOne({ _id: id });
+    const seller = dbRepository.findOneTableData({
+      tableName: "sellers",
+      filter: { _id: id }
+    });
+
     if (seller) userTypes.push("seller");
-    const supplier = Suppliers.findOne({ _id: id });
+    const supplier = dbRepository.findOneTableData({
+      tableName: "suppliers",
+      filter: { _id: id }
+    });
     if (supplier) userTypes.push("supplier");
 
     return userTypes;
@@ -212,16 +246,22 @@ export class UserRepository {
    * }} Seller
    */
   static _getSellerPretty({ id }) {
-    const user = Users.findOne({
-      _id: id,
-      _tb_identification: {
-        $ref: "enum_identification",
-        $id: "$data.identification_id"
+    const user = dbRepository.findOneTableData({
+      tableName: "users",
+      filter: {
+        _id: id,
+        _tb_identification: {
+          $ref: "list_identification",
+          $id: "$data.identification_id"
+        }
       }
     });
-    const seller = Sellers.findOne({
-      _id: id,
-      _tb_role: { $ref: "enum_role", $id: "$data.role_id" }
+    const seller = dbRepository.findOneTableData({
+      tableName: "sellers",
+      filter: {
+        _id: id,
+        _tb_role: { $ref: "list_role", $id: "$data.role_id" }
+      }
     });
 
     const s = {};
@@ -262,7 +302,7 @@ export class UserRepository {
     if (!createdAt) createdAt = Date.now();
     if (!updatedAt) updatedAt = Date.now();
 
-    Validations.user({
+    validations.user({
       id,
       identificationId,
       identificationNumber,
@@ -279,7 +319,7 @@ export class UserRepository {
     u.created_at = createdAt;
     u.updated_at = updatedAt;
 
-    Users.create(u).save();
+    dbRepository.insertRow({ tableName: "users", value: u });
 
     return id;
   }
@@ -297,7 +337,8 @@ export class UserRepository {
    * }[]} allUsers
    */
   static getAllUsers({ type }) {
-    const users = UserRepository._allUsers()
+    const users = userRepository
+      ._allUsers()
       .filter((user) => {
         if (!type) return true;
 
@@ -380,7 +421,8 @@ export class UserRepository {
    * } | null} user
    */
   static getUser({ id }) {
-    const user = UserRepository._allUsers()
+    const user = userRepository
+      ._allUsers()
       .filter((user) => {
         return user._id === id;
       })
@@ -416,7 +458,7 @@ export class UserRepository {
           u.seller.role = user._tb_sellers._tb_role.role;
           u.seller.topOf = user._tb_sellers._tb_hierarchy._seller.map(
             (seller) => {
-              const s = UserRepository._getSellerPretty({ id: seller._id });
+              const s = userRepository._getSellerPretty({ id: seller._id });
 
               return s;
             }
@@ -465,12 +507,18 @@ export class UserRepository {
     const idExists = Boolean(id);
     if (!idExists) id = crypto.randomUUID();
 
-    Validations.client({ id, names, surnames, genderId });
+    validations.client({ id, names, surnames, genderId });
 
-    const user = idExists ? Users.findOne({ _id: id }) : undefined;
+    const user = idExists
+      ? dbRepository.findOneTableData({
+          tableName: "users",
+          filter: { _id: id }
+        })
+      : undefined;
+
     const userId = user
       ? user._id
-      : UserRepository._createUser({
+      : userRepository._createUser({
           id,
           identificationId,
           identificationNumber,
@@ -485,7 +533,7 @@ export class UserRepository {
     if (surnames) c.surnames = surnames;
     c.gender_id = genderId;
 
-    Clients.create(c).save();
+    dbRepository.insertRow({ tableName: "clients", value: c });
 
     return userId;
   }
@@ -527,7 +575,7 @@ export class UserRepository {
     const idExists = Boolean(id);
     if (!idExists) id = crypto.randomUUID();
 
-    Validations.seller({
+    validations.seller({
       id,
       names,
       surnames,
@@ -538,10 +586,16 @@ export class UserRepository {
       economicActivityCode
     });
 
-    const user = idExists ? Users.findOne({ _id: id }) : undefined;
+    const user = idExists
+      ? dbRepository.findOneTableData({
+          tableName: "users",
+          filter: { _id: id }
+        })
+      : undefined;
+
     const userId = user
       ? user._id
-      : UserRepository._createUser({
+      : userRepository._createUser({
           id,
           identificationId,
           identificationNumber,
@@ -563,7 +617,7 @@ export class UserRepository {
     if (taxRegimeCode) s.tax_regime_code = taxRegimeCode;
     if (economicActivityCode) s.economic_activity_code = economicActivityCode;
 
-    Sellers.create(s).save();
+    dbRepository.insertRow({ tableName: "sellers", value: s });
 
     return userId;
   }
@@ -593,12 +647,18 @@ export class UserRepository {
     const idExists = Boolean(id);
     if (!idExists) id = crypto.randomUUID();
 
-    Validations.supplier({ id, businessName });
+    validations.supplier({ id, businessName });
 
-    const user = idExists ? Users.findOne({ _id: id }) : undefined;
+    const user = idExists
+      ? dbRepository.findOneTableData({
+          tableName: "users",
+          filter: { _id: id }
+        })
+      : undefined;
+
     const userId = user
       ? user._id
-      : UserRepository._createUser({
+      : userRepository._createUser({
           id,
           identificationId,
           identificationNumber,
@@ -611,7 +671,7 @@ export class UserRepository {
     s._id = userId;
     s.business_name = businessName;
 
-    Suppliers.create(s).save();
+    dbRepository.insertRow({ tableName: "suppliers", value: s });
 
     return userId;
   }
@@ -651,7 +711,7 @@ export class UserRepository {
     economicActivityCode,
     businessName
   }) {
-    Validations.update({
+    validations.update({
       id,
       identificationId,
       identificationNumber,
@@ -668,38 +728,53 @@ export class UserRepository {
       businessName
     });
 
-    const user = Users.findOne({ _id: id });
-    if (identificationId) user.identification_id = identificationId;
-    if (identificationNumber) user.identification_number = identificationNumber;
-    if (image) user.image = image;
-    if (createdAt) user.created_at = createdAt;
-    if (updatedAt) user.updated_at = updatedAt;
-    user.save();
+    const u = {};
+    if (identificationId) u.identification_id = identificationId;
+    if (identificationNumber) u.identification_number = identificationNumber;
+    if (image) u.image = image;
+    if (createdAt) u.created_at = createdAt;
+    if (updatedAt) u.updated_at = updatedAt;
+    dbRepository.updateRow({
+      tableName: "users",
+      filter: { _id: id },
+      value: u
+    });
 
     const userTypes = this.getUserTypes({ id });
     if (userTypes.includes("client")) {
-      const client = Clients.findOne({ _id: id });
-      if (names) client.names = names;
-      if (surnames) client.surnames = surnames;
-      if (genderId) client.gender_id = genderId;
-      client.save();
+      const c = {};
+      if (names) c.names = names;
+      if (surnames) c.surnames = surnames;
+      if (genderId) c.gender_id = genderId;
+      dbRepository.updateRow({
+        tableName: "clients",
+        filter: { _id: id },
+        value: c
+      });
     }
     if (userTypes.includes("seller")) {
-      const seller = Sellers.findOne({ _id: id });
-      if (names) seller.names = names;
-      if (surnames) seller.surnames = surnames;
-      if (genderId) seller.gender_id = genderId;
-      if (roleId) seller.role_id = roleId;
-      if (password) seller.password = password;
-      if (taxRegimeCode) seller.tax_regime_code = taxRegimeCode;
-      if (economicActivityCode)
-        seller.economic_activity_code = economicActivityCode;
-      seller.save();
+      const s = {};
+      if (names) s.names = names;
+      if (surnames) s.surnames = surnames;
+      if (genderId) s.gender_id = genderId;
+      if (roleId) s.role_id = roleId;
+      if (password) s.password = password;
+      if (taxRegimeCode) s.tax_regime_code = taxRegimeCode;
+      if (economicActivityCode) s.economic_activity_code = economicActivityCode;
+      dbRepository.updateRow({
+        tableName: "sellers",
+        filter: { _id: id },
+        value: s
+      });
     }
     if (userTypes.includes("supplier")) {
-      const supplier = Suppliers.findOne({ _id: id });
-      if (businessName) supplier.business_name = businessName;
-      supplier.save();
+      const s = {};
+      if (businessName) s.business_name = businessName;
+      dbRepository.updateRow({
+        tableName: "suppliers",
+        filter: { _id: id },
+        value: s
+      });
     }
 
     return id;
@@ -711,8 +786,7 @@ export class UserRepository {
    * }} options
    */
   static removeClient({ id }) {
-    const client = Clients.findOne({ _id: id });
-    client.remove();
+    dbRepository.removeRow({ tableName: "clients", filter: { _id: id } });
   }
 
   /**
@@ -721,21 +795,25 @@ export class UserRepository {
    * }} options
    */
   static removeSeller({ id }) {
-    let hierarchyIds = [];
-    SellerHierarchy.find({ seller_id: id }).forEach((seller) => {
-      hierarchyIds.push(seller._id);
-    });
-    SellerHierarchy.find({ top_seller_id: id }).forEach((seller) => {
-      hierarchyIds.push(seller._id);
-    });
+    let hierarchyIds = dbRepository
+      .findTableData({
+        tableName: "seller_hierarchy",
+        filter: { seller_id: id }
+      })
+      .contact(
+        dbRepository.findTableData({
+          tableName: "seller_hierarchy",
+          filter: { top_seller_id: id }
+        })
+      )
+      .map((row) => row._id);
     hierarchyIds = [...new Set(hierarchyIds)];
-    for (const id of hierarchyIds) {
-      const seller = SellerHierarchy.findOne({ _id: id });
-      seller.remove();
-    }
+    dbRepository.removeRowsByIds({
+      tableName: "seller_hierarchy",
+      ids: hierarchyIds
+    });
 
-    const seller = Sellers.findOne({ _id: id });
-    seller.remove();
+    dbRepository.removeRow({ tableName: "sellers", filter: { _id: id } });
   }
 
   /**
@@ -744,8 +822,7 @@ export class UserRepository {
    * }} options
    */
   static removeSupplier({ id }) {
-    const supplier = Suppliers.findOne({ _id: id });
-    supplier.remove();
+    dbRepository.removeRow({ tableName: "suppliers", filter: { _id: id } });
   }
 
   /**
@@ -754,22 +831,28 @@ export class UserRepository {
    * }} options
    */
   static removeUser({ id }) {
-    const client = Clients.findOne({ _id: id });
-    if (client) UserRepository.removeClient({ id });
-    const seller = Sellers.findOne({ _id: id });
-    if (seller) UserRepository.removeSeller({ id });
-    const supplier = Suppliers.findOne({ _id: id });
-    if (supplier) UserRepository.removeSupplier({ id });
-
-    const contactIds = ContactsUsers.find({ user_id: id }).map(
-      (contact) => contact._id
-    );
-    for (const id of contactIds) {
-      const contact = ContactsUsers.findOne({ _id: id });
-      contact.remove();
+    const userTypes = this.getUserTypes({ id });
+    if (userTypes.includes("client")) {
+      dbRepository.removeRow({ tableName: "clients", filter: { _id: id } });
+    }
+    if (userTypes.includes("sellers")) {
+      dbRepository.removeRow({ tableName: "sellers", filter: { _id: id } });
+    }
+    if (userTypes.includes("suppliers")) {
+      dbRepository.removeRow({ tableName: "suppliers", filter: { _id: id } });
     }
 
-    const user = Users.findOne({ _id: id });
-    user.remove();
+    const contactIds = dbRepository
+      .findTableData({
+        tableName: "contacts_users",
+        filter: { user_id: id }
+      })
+      .map((contact) => contact._id);
+    dbRepository.removeRowsByIds({
+      tableName: "contacts_users",
+      ids: contactIds
+    });
+
+    dbRepository.removeRow({ tableName: "users", filter: { _id: id } });
   }
 }
